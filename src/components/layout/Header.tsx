@@ -1,5 +1,6 @@
+"use client";
 import { Shield } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ViewType } from '../../types';
 
 interface HeaderProps {
@@ -8,12 +9,35 @@ interface HeaderProps {
 }
 
 export function Header({ currentView, onViewChange }: HeaderProps) {
+  const [user, setUser] = useState<{ id: string; name: string; email: string } | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
+        const data = await res.json();
+        if (!mounted) return;
+        if (res.ok && data?.user) setUser(data.user);
+      } catch (err) {
+        // ignore
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
   const navItems: { id: ViewType; label: string }[] = [
     { id: 'home', label: 'Trang chủ' },
     { id: 'analyzer', label: 'Kiểm tra AI' },
     { id: 'knowledge', label: 'Kho kiến thức' },
     { id: 'stats', label: 'Thống kê & Báo cáo' },
   ];
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    setUser(null);
+    onViewChange('home');
+  };
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm">
@@ -44,19 +68,34 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
 
         <div className="flex items-center gap-4">
           <Shield className="text-primary hidden md:block h-5 w-5" />
-          <div className="hidden sm:flex gap-3">
-            <button
-              onClick={() => onViewChange('login')}
-              className="px-4 py-2 text-sm text-on-surface-variant hover:text-primary transition-colors font-medium"
-            >
-              Đăng nhập
-            </button>
-            <button
-              onClick={() => onViewChange('register')}
-              className="px-6 py-2 bg-primary-container text-on-primary-container rounded-lg text-sm font-bold hover:brightness-110 transition-all active:scale-95"
-            >
-              Đăng ký
-            </button>
+          <div className="hidden sm:flex gap-3 items-center">
+            {!user ? (
+              <>
+                <button
+                  onClick={() => onViewChange('login')}
+                  className="px-4 py-2 text-sm text-on-surface-variant hover:text-primary transition-colors font-medium"
+                >
+                  Đăng nhập
+                </button>
+                <button
+                  onClick={() => onViewChange('register')}
+                  className="px-6 py-2 bg-primary-container text-on-primary-container rounded-lg text-sm font-bold hover:brightness-110 transition-all active:scale-95"
+                >
+                  Đăng ký
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-on-surface-variant">Xin chào, {user.name}</span>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">{user.name?.split(' ')[0]?.[0] || 'U'}</div>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 text-sm text-on-surface-variant hover:text-primary transition-colors font-medium"
+                >
+                  Đăng xuất
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -46,11 +46,13 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
         setMessage(result?.message || 'Có lỗi xảy ra.');
         return;
       }
-
       setMessage(result?.message || 'Thành công.');
       if (mode === 'login') {
         setEmail('');
         setPassword('');
+        // token cookie set by server; redirect to home
+        window.location.href = '/';
+        return;
       } else {
         setName('');
         setEmail('');
