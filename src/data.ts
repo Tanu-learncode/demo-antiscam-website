@@ -1,0 +1,115 @@
+import { Article, RecentReport, StatData } from './types';
+
+export const KNOWLEDGE_ARTICLES: Article[] = [
+  {
+    id: '1',
+    title: 'Cảnh giác chiêu trò lừa đảo "Deepfake" qua cuộc gọi video',
+    excerpt: 'Phân tích chi tiết phương thức tội phạm sử dụng trí tuệ nhân tạo để giả mạo khuôn mặt và giọng nói của người thân nhằm chiếm đoạt tài sản.',
+    imageUrl: 'https://images.unsplash.com/photo-1633265486064-086b219458ce?auto=format&fit=crop&q=80&w=800',
+    category: 'Khẩn cấp',
+    tags: ['AI', 'Video Call'],
+    readTime: '5 phút đọc',
+    isHot: true,
+  },
+  {
+    id: '2',
+    title: 'Cách thiết lập 2FA an toàn tuyệt đối',
+    excerpt: 'Hướng dẫn từng bước cài đặt bảo mật 2 lớp cho Facebook, Gmail và các ứng dụng ngân hàng.',
+    imageUrl: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&q=80&w=800',
+    category: 'Video',
+    tags: ['Security', '2FA'],
+    isVideo: true,
+    duration: '12:45',
+    views: '1.2k',
+  },
+  {
+    id: '3',
+    title: '7 Dấu hiệu nhận biết Website giả mạo',
+    excerpt: 'Đừng để bị đánh lừa bởi giao diện giống hệt ngân hàng. Kiểm tra các yếu tố kỹ thuật quan trọng này.',
+    imageUrl: 'https://images.unsplash.com/photo-1614064641913-a538a5b23d04?auto=format&fit=crop&q=80&w=800',
+    category: 'Cẩm nang',
+    tags: ['Phishing', 'Web'],
+  },
+  {
+    id: '4',
+    title: 'Password Manager: Tại sao bạn cần nó?',
+    excerpt: 'Giải pháp quản lý hàng trăm mật khẩu phức tạp mà không bao giờ lo bị quên hay bị hack.',
+    imageUrl: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800',
+    category: 'Kiến thức nền',
+    tags: ['Password', 'Privacy'],
+  },
+  {
+    id: '5',
+    title: 'Rủi ro từ mạng Wifi công cộng',
+    excerpt: 'Những nguy cơ tiềm ẩn khi sử dụng Wifi miễn phí tại quán cafe, sân bay và cách phòng tránh.',
+    imageUrl: 'https://images.unsplash.com/photo-1563207153-f4089ae1db3f?auto=format&fit=crop&q=80&w=800',
+    category: 'Phân tích',
+    tags: ['Network', 'Wifi'],
+  },
+];
+
+export const STAT_DATA: StatData[] = [
+  {
+    id: 'total',
+    label: 'Tổng số vụ báo cáo',
+    value: '124,582',
+    trend: '+12.5% so với tháng trước',
+    trendDirection: 'up',
+    icon: 'AlertTriangle',
+    color: 'primary',
+    description: '',
+  },
+  {
+    id: 'prevented',
+    label: 'Tỷ lệ ngăn chặn',
+    value: '89.2%',
+    trend: 'Hệ thống đang hoạt động tốt',
+    trendDirection: 'neutral',
+    icon: 'ShieldCheck',
+    color: 'success',
+    description: '',
+  },
+  {
+    id: 'common',
+    label: 'Loại hình phổ biến nhất',
+    value: 'Giả mạo App',
+    icon: 'Smartphone',
+    color: 'outline',
+    description: 'Chiếm 42% tổng lượng báo cáo',
+  },
+  {
+    id: 'saved',
+    label: 'Tài sản đã bảo vệ',
+    value: '~850 Tỷ VNĐ',
+    icon: 'Wallet',
+    color: 'primary',
+    description: 'Tính từ đầu năm 2024',
+  },
+];
+
+export const RECENT_REPORTS: RecentReport[] = [
+  {
+    id: '1',
+    type: 'Giả mạo ngân hàng',
+    time: '2 phút trước',
+    location: 'TP. HCM',
+    icon: 'AlertCircle',
+    color: 'text-error bg-error/20',
+  },
+  {
+    id: '2',
+    type: 'Link độc hại (SMS)',
+    time: '15 phút trước',
+    location: 'Hà Nội',
+    icon: 'Link',
+    color: 'text-primary bg-primary/20',
+  },
+  {
+    id: '3',
+    type: 'Cuộc gọi định danh giả',
+    time: '42 phút trước',
+    location: 'Đà Nẵng',
+    icon: 'Phone',
+    color: 'text-secondary bg-secondary/20',
+  },
+];
