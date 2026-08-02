@@ -46,10 +46,16 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
         <div className="flex items-center gap-4">
           <Shield className="text-primary hidden md:block h-5 w-5" />
           <div className="hidden sm:flex gap-3">
-            <button className="px-4 py-2 text-sm text-on-surface-variant hover:text-primary transition-colors font-medium">
+            <button
+              onClick={() => onViewChange('login')}
+              className="px-4 py-2 text-sm text-on-surface-variant hover:text-primary transition-colors font-medium"
+            >
               Đăng nhập
             </button>
-            <button className="px-6 py-2 bg-primary-container text-on-primary-container rounded-lg text-sm font-bold hover:brightness-110 transition-all active:scale-95">
+            <button
+              onClick={() => onViewChange('register')}
+              className="px-6 py-2 bg-primary-container text-on-primary-container rounded-lg text-sm font-bold hover:brightness-110 transition-all active:scale-95"
+            >
               Đăng ký
             </button>
           </div>
