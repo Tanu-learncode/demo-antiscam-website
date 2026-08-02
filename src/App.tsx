@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react';
+import { ViewType } from './types';
 import { Footer } from './components/layout/Footer';
 import { Header } from './components/layout/Header';
 import { AnalyzerView } from './views/AnalyzerView';
@@ -14,7 +15,7 @@ import { HomeView } from './views/HomeView';
 import { KnowledgeView } from './views/KnowledgeView';
 import { StatsView } from './views/StatsView';
 
-type ViewType = 'home' | 'analyzer' | 'knowledge' | 'stats' | 'login' | 'register';
+// ViewType imported from src/types.ts
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('home');

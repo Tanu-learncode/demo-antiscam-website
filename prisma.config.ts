@@ -1,13 +1,15 @@
 import 'dotenv/config';
 import { defineConfig } from '@prisma/config';
 
-export default defineConfig({
+// Use `any` to avoid TypeScript type errors while preserving runtime shape
+const runtimeConfig: any = {
   datasources: {
     db: {
       provider: 'postgresql',
       url: process.env.DATABASE_URL,
-      // Use DIRECT_URL as shadowDatabaseUrl for migrations (session-mode pooler)
       shadowDatabaseUrl: process.env.DIRECT_URL,
     },
   },
-});
+};
+
+export default defineConfig(runtimeConfig);

@@ -1,7 +1,6 @@
 import { Shield } from 'lucide-react';
 import React from 'react';
-
-type ViewType = 'home' | 'analyzer' | 'knowledge' | 'stats';
+import { ViewType } from '../../types';
 
 interface HeaderProps {
   currentView: ViewType;

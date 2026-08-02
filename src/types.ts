@@ -48,3 +48,5 @@ export interface EdgeData {
   interactionType: 'transaction' | 'message' | 'visit';
   timestamp: string;
 }
+
+export type ViewType = 'home' | 'analyzer' | 'knowledge' | 'stats' | 'login' | 'register';
