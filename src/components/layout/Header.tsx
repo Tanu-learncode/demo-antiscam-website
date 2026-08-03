@@ -86,7 +86,7 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
               </>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="text-sm text-on-surface-variant">Xin chào, {user.name}</span>
+                <span className="text-sm text-on-surface-variant cursor-pointer" onClick={() => onViewChange('profile')}>Xin chào, {user.name}</span>
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">{user.name?.split(' ')[0]?.[0] || 'U'}</div>
                 <button
                   onClick={handleLogout}

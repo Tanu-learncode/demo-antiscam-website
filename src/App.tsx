@@ -12,6 +12,7 @@ import { Header } from './components/layout/Header';
 import { AnalyzerView } from './views/AnalyzerView';
 import { AuthView } from './views/AuthView';
 import { HomeView } from './views/HomeView';
+import { ProfileView } from './views/ProfileView';
 import { KnowledgeView } from './views/KnowledgeView';
 import { StatsView } from './views/StatsView';
 
@@ -34,6 +35,8 @@ export default function App() {
         return <AuthView mode="login" onModeChange={setCurrentView} />;
       case 'register':
         return <AuthView mode="register" onModeChange={setCurrentView} />;
+      case 'profile':
+        return <ProfileView />;
       default:
         return <HomeView />;
     }

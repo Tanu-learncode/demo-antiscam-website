@@ -5,14 +5,38 @@ import { GlassCard } from '../components/ui/GlassCard';
 
 export function AnalyzerView() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showResult, setShowResult] = useState(false);
+  const [content, setContent] = useState('');
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
+    if (!content.trim()) return;
+    
     setIsAnalyzing(true);
-    setTimeout(() => {
+    setAnalysisResult(null);
+    setErrorMessage('');
+    
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.ok && data.analysis) {
+        setAnalysisResult(data.analysis);
+      } else {
+        setErrorMessage(data.message || 'Có lỗi xảy ra khi phân tích.');
+      }
+    } catch (error) {
+      setErrorMessage('Không thể kết nối đến máy chủ.');
+    } finally {
       setIsAnalyzing(false);
-      setShowResult(true);
-    }, 2500);
+    }
   };
 
   return (
@@ -50,6 +74,8 @@ export function AnalyzerView() {
                 className="w-full h-40 bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg p-4 text-on-surface placeholder:text-outline transition-all resize-none" 
                 placeholder="Dán nội dung tin nhắn hoặc đường dẫn URL tại đây để bắt đầu phân tích..."
                 disabled={isAnalyzing}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
               ></textarea>
             </div>
             
@@ -84,9 +110,48 @@ export function AnalyzerView() {
               {isAnalyzing ? 'Đang phân tích...' : 'Phân Tích Ngay'}
             </button>
             
-            {showResult && (
+            {errorMessage && (
                <div className="mt-4 p-4 border border-error bg-error-container/20 rounded-lg animate-in slide-in-from-top-4">
-                 <p className="text-error font-semibold">Phân tích hoàn tất: Phát hiện rủi ro cao. Vui lòng không truy cập liên kết.</p>
+                 <p className="text-error font-semibold">{errorMessage}</p>
+               </div>
+            )}
+            
+            {analysisResult && (
+               <div className="mt-6 space-y-4 animate-in slide-in-from-top-4 text-left">
+                 <div className={`p-4 border rounded-lg ${
+                   analysisResult.riskLevel.toLowerCase() === 'high' ? 'border-error bg-error-container/20 text-error' : 
+                   analysisResult.riskLevel.toLowerCase() === 'medium' ? 'border-[var(--color-outline)] bg-surface-container/50 text-secondary' : 
+                   'border-success bg-success/10 text-success'
+                 }`}>
+                   <h3 className="text-lg font-bold flex items-center gap-2 mb-2">
+                     Mức độ rủi ro: <span className="uppercase">
+                       {analysisResult.riskLevel.toLowerCase() === 'high' ? '🔴 Nguy hiểm' : 
+                        analysisResult.riskLevel.toLowerCase() === 'medium' ? '🟠 Cảnh báo' : 
+                        '🟢 An toàn'}
+                     </span>
+                     <span className="text-sm font-normal opacity-80">(Độ tin cậy AI: {analysisResult.confidence}%)</span>
+                   </h3>
+                   <p className="text-sm opacity-90"><strong>Loại:</strong> {analysisResult.detectedType}</p>
+                 </div>
+                 
+                 <div className="p-4 bg-surface-container rounded-lg">
+                   <h4 className="font-semibold mb-2 text-on-surface">Tóm tắt</h4>
+                   <p className="text-sm text-on-surface-variant">{analysisResult.summary}</p>
+                 </div>
+                 
+                 <div className="p-4 bg-surface-container rounded-lg">
+                   <h4 className="font-semibold mb-2 text-on-surface">Dấu hiệu nhận biết</h4>
+                   <ul className="list-disc list-inside text-sm text-on-surface-variant space-y-1">
+                     {analysisResult.indicators.map((indicator: string, idx: number) => (
+                       <li key={idx}>{indicator}</li>
+                     ))}
+                   </ul>
+                 </div>
+                 
+                 <div className="p-4 bg-primary-container/10 border border-primary/20 rounded-lg">
+                   <h4 className="font-semibold text-primary mb-2">Khuyến nghị</h4>
+                   <p className="text-sm text-primary">{analysisResult.recommendation}</p>
+                 </div>
                </div>
             )}
           </div>
