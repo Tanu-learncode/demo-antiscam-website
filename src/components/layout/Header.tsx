@@ -69,7 +69,7 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
     <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm">
       <div className="flex justify-between items-center h-16 px-6 max-w-7xl mx-auto">
         <div 
-          className="flex items-center gap-2 cursor-pointer relative z-[60]"
+          className="flex items-center gap-2 cursor-pointer"
           onClick={() => handleNavClick('home')}
         >
           <Shield className="text-primary h-6 w-6" />
@@ -131,10 +131,10 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
           </div>
           
           <button 
-            className="md:hidden text-on-surface relative z-[60]"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden text-on-surface"
+            onClick={() => setIsMobileMenuOpen(true)}
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <Menu className="w-6 h-6" />
           </button>
         </div>
       </div>
@@ -156,8 +156,22 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
               animate={{ x: 0, opacity: 1, scale: 1 }}
               exit={{ x: '100%', opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-72 h-fit max-h-[100dvh] bg-surface-container border-l border-white/10 shadow-2xl flex flex-col py-20 px-6 overflow-y-auto no-scrollbar"
+              className="relative w-80 max-w-[85vw] h-[100dvh] bg-surface-container border-l border-white/10 shadow-2xl flex flex-col pt-6 px-6 overflow-y-auto no-scrollbar"
+              style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 1.5rem)' }}
             >
+              <div className="flex justify-between items-center mb-8 shrink-0">
+                <div className="flex items-center gap-2">
+                  <Shield className="text-primary h-6 w-6" />
+                  <span className="font-logo text-xl text-primary font-bold tracking-wider">ANTISCAM</span>
+                </div>
+                <button 
+                  className="text-on-surface p-2 -mr-2 rounded-full hover:bg-white/5 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
               <div className="flex flex-col gap-2">
                 {navItems.map((item) => (
                   <button
