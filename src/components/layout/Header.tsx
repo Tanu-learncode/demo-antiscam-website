@@ -1,6 +1,7 @@
 "use client";
-import { Shield } from 'lucide-react';
+import { Shield, Menu, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ViewType } from '../../types';
 
 interface HeaderProps {
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export function Header({ currentView, onViewChange }: HeaderProps) {
   const [user, setUser] = useState<{ id: string; name: string; email: string; role?: string; avatar?: string } | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -55,14 +57,20 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
     await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
     onViewChange('home');
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleNavClick = (id: ViewType) => {
+    onViewChange(id);
+    setIsMobileMenuOpen(false);
   };
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm">
       <div className="flex justify-between items-center h-16 px-6 max-w-7xl mx-auto">
         <div 
-          className="flex items-center gap-2 cursor-pointer"
-          onClick={() => onViewChange('home')}
+          className="flex items-center gap-2 cursor-pointer relative z-[60]"
+          onClick={() => handleNavClick('home')}
         >
           <Shield className="text-primary h-6 w-6" />
           <span className="font-logo text-xl text-primary font-bold tracking-wider">ANTISCAM</span>
@@ -72,7 +80,7 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => onViewChange(item.id)}
+              onClick={() => handleNavClick(item.id)}
               className={`text-sm font-medium transition-colors ${
                 currentView === item.id 
                   ? 'text-primary border-b-2 border-primary pb-1 font-bold' 
@@ -86,17 +94,17 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
 
         <div className="flex items-center gap-4">
           <Shield className="text-primary hidden md:block h-5 w-5" />
-          <div className="hidden sm:flex gap-3 items-center">
+          <div className="hidden md:flex gap-3 items-center">
             {!user ? (
               <>
                 <button
-                  onClick={() => onViewChange('login')}
+                  onClick={() => handleNavClick('login')}
                   className="px-4 py-2 text-sm text-on-surface-variant hover:text-primary transition-colors font-medium"
                 >
                   Đăng nhập
                 </button>
                 <button
-                  onClick={() => onViewChange('register')}
+                  onClick={() => handleNavClick('register')}
                   className="px-6 py-2 bg-primary-container text-on-primary-container rounded-lg text-sm font-bold hover:brightness-110 transition-all active:scale-95"
                 >
                   Đăng ký
@@ -104,11 +112,11 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
               </>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="text-sm text-on-surface-variant cursor-pointer" onClick={() => onViewChange('profile')}>Xin chào, {user.name}</span>
+                <span className="text-sm text-on-surface-variant cursor-pointer" onClick={() => handleNavClick('profile')}>Xin chào, {user.name}</span>
                 {user.avatar ? (
-                  <img src={user.avatar} className="w-8 h-8 rounded-full object-cover border border-primary/50 cursor-pointer" onClick={() => onViewChange('profile')} />
+                  <img src={user.avatar} className="w-8 h-8 rounded-full object-cover border border-primary/50 cursor-pointer" onClick={() => handleNavClick('profile')} />
                 ) : (
-                  <div onClick={() => onViewChange('profile')} className="cursor-pointer w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                  <div onClick={() => handleNavClick('profile')} className="cursor-pointer w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
                     {user.name?.charAt(0)?.toUpperCase() || 'U'}
                   </div>
                 )}
@@ -121,8 +129,103 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
               </div>
             )}
           </div>
+          
+          <button 
+            className="md:hidden text-on-surface relative z-[60]"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Drawer Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 z-50 flex justify-end">
+            <motion.div
+              initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+              animate={{ opacity: 1, backdropFilter: 'blur(10px)' }}
+              exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="absolute inset-0 bg-[#060a14]/45"
+            />
+            <motion.div
+              initial={{ x: '100%', opacity: 0, scale: 0.98 }}
+              animate={{ x: 0, opacity: 1, scale: 1 }}
+              exit={{ x: '100%', opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-72 h-fit max-h-[100dvh] bg-surface-container border-l border-white/10 shadow-2xl flex flex-col py-20 px-6 overflow-y-auto no-scrollbar"
+            >
+              <div className="flex flex-col gap-2">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`text-left text-lg font-medium transition-colors py-5 px-4 rounded-lg ${
+                      currentView === item.id 
+                        ? 'text-primary font-bold bg-primary/10' 
+                        : 'text-on-surface-variant hover:text-primary hover:bg-white/5'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+
+                {user && (
+                  <>
+                    <div 
+                      className={`flex items-center gap-3 py-4 px-4 rounded-xl cursor-pointer transition-colors border ${
+                        currentView === 'profile' 
+                          ? 'bg-primary/10 border-primary/30' 
+                          : 'bg-surface-container-high border-white/5 hover:border-primary/30 hover:bg-white/5'
+                      }`}
+                      onClick={() => handleNavClick('profile')}
+                    >
+                      {user.avatar ? (
+                        <img src={user.avatar} className="w-12 h-12 rounded-full object-cover border border-primary/50 shrink-0" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl shrink-0">
+                          {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                      )}
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="text-base font-bold text-on-surface truncate">{user.name}</span>
+                        <span className="text-sm text-on-surface-variant truncate">{user.email}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleLogout}
+                      className="text-left text-lg font-bold text-error transition-colors py-5 px-4 rounded-lg hover:bg-error/10 mt-2"
+                    >
+                      Đăng xuất
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {!user && (
+                <div className="mt-8 pt-6 border-t border-white/10 flex flex-col gap-4">
+                  <button
+                    onClick={() => handleNavClick('login')}
+                    className="w-full py-4 text-center text-on-surface hover:text-primary transition-colors font-medium border border-outline-variant/50 rounded-xl"
+                  >
+                    Đăng nhập
+                  </button>
+                  <button
+                    onClick={() => handleNavClick('register')}
+                    className="w-full py-4 bg-primary-container text-on-primary-container rounded-xl text-center font-bold hover:brightness-110 transition-all active:scale-95"
+                  >
+                    Đăng ký
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

@@ -14,7 +14,7 @@ export function HomeView({ onViewChange }: HomeViewProps) {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   
   return (
-    <div className="space-y-20 pb-20">
+    <div className="space-y-12 md:space-y-20 lg:space-y-40 pb-20 overflow-x-hidden">
       {/* Hero Section */}
       <section className="relative pt-32 px-6 flex flex-col items-center text-center max-w-4xl mx-auto">
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -z-10 animate-pulse"></div>
@@ -33,7 +33,7 @@ export function HomeView({ onViewChange }: HomeViewProps) {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight leading-tight"
+          className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 tracking-tight leading-tight"
         >
           Phát Hiện & Cảnh Báo <br/>
           <span className="text-primary text-glow-primary">Lừa Đảo Trực Tuyến</span> Bằng AI
@@ -43,7 +43,7 @@ export function HomeView({ onViewChange }: HomeViewProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-lg text-on-surface-variant max-w-2xl mb-10"
+          className="text-base md:text-lg text-on-surface-variant max-w-2xl mb-8 md:mb-10 px-4"
         >
           Nền tảng AI phân tích liên kết, tin nhắn, hình ảnh để bảo vệ bạn khỏi các mối đe dọa trực tuyến phức tạp nhất.
         </motion.p>
@@ -52,14 +52,14 @@ export function HomeView({ onViewChange }: HomeViewProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="flex flex-wrap justify-center gap-4"
+          className="flex flex-col sm:flex-row justify-center w-full px-4 gap-4"
         >
           <button 
             onClick={() => {
               if (onViewChange) onViewChange('analyzer');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="bg-primary text-on-primary font-bold px-8 py-4 rounded-xl flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+            className="w-full sm:w-auto bg-primary text-on-primary font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-primary/20"
           >
             <Lock className="w-5 h-5" />
             Kiểm Tra Ngay
@@ -76,11 +76,11 @@ export function HomeView({ onViewChange }: HomeViewProps) {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-center mb-10"
         >
-          <h2 className="text-3xl font-bold mb-4">AntiScam AI có thể giúp bạn kiểm tra</h2>
-          <p className="text-on-surface-variant text-lg">Phân tích nhiều loại nội dung để phát hiện các dấu hiệu lừa đảo trực tuyến bằng AI.</p>
+          <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">AntiScam AI có thể giúp bạn kiểm tra</h2>
+          <p className="text-on-surface-variant text-base md:text-lg">Phân tích nhiều loại nội dung để phát hiện các dấu hiệu lừa đảo trực tuyến bằng AI.</p>
         </motion.div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -88,12 +88,12 @@ export function HomeView({ onViewChange }: HomeViewProps) {
             transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
             className="h-full"
           >
-            <GlassCard className="h-full p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
-              <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
-                <Globe className="w-7 h-7" />
+            <GlassCard className="h-full p-4 md:p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
+              <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <Globe className="w-5 h-5 md:w-7 md:h-7" />
               </div>
-              <h3 className="text-lg font-bold mb-1">URL</h3>
-              <p className="text-on-surface-variant text-sm">Phát hiện website giả mạo, link độc hại.</p>
+              <h3 className="text-base md:text-lg font-bold mb-1">URL</h3>
+              <p className="text-on-surface-variant text-xs md:text-sm">Phát hiện website giả mạo, link độc hại.</p>
             </GlassCard>
           </motion.div>
           
@@ -104,12 +104,12 @@ export function HomeView({ onViewChange }: HomeViewProps) {
             transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
             className="h-full"
           >
-            <GlassCard className="h-full p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
-              <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
-                <Mail className="w-7 h-7" />
+            <GlassCard className="h-full p-4 md:p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
+              <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <Mail className="w-5 h-5 md:w-7 md:h-7" />
               </div>
-              <h3 className="text-lg font-bold mb-1">Email</h3>
-              <p className="text-on-surface-variant text-sm">Nhận diện email lừa đảo, phishing.</p>
+              <h3 className="text-base md:text-lg font-bold mb-1">Email</h3>
+              <p className="text-on-surface-variant text-xs md:text-sm">Nhận diện email lừa đảo, phishing.</p>
             </GlassCard>
           </motion.div>
           
@@ -120,12 +120,12 @@ export function HomeView({ onViewChange }: HomeViewProps) {
             transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
             className="h-full"
           >
-            <GlassCard className="h-full p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
-              <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
-                <MessageSquare className="w-7 h-7" />
+            <GlassCard className="h-full p-4 md:p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
+              <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <MessageSquare className="w-5 h-5 md:w-7 md:h-7" />
               </div>
-              <h3 className="text-lg font-bold mb-1">Tin nhắn</h3>
-              <p className="text-on-surface-variant text-sm">Phân tích tin nhắn lừa đảo.</p>
+              <h3 className="text-base md:text-lg font-bold mb-1">Tin nhắn</h3>
+              <p className="text-on-surface-variant text-xs md:text-sm">Phân tích tin nhắn lừa đảo.</p>
             </GlassCard>
           </motion.div>
           
@@ -136,12 +136,12 @@ export function HomeView({ onViewChange }: HomeViewProps) {
             transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
             className="h-full"
           >
-            <GlassCard className="h-full p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
-              <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
-                <ImageIcon className="w-7 h-7" />
+            <GlassCard className="h-full p-4 md:p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
+              <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <ImageIcon className="w-5 h-5 md:w-7 md:h-7" />
               </div>
-              <h3 className="text-lg font-bold mb-1">Hình ảnh</h3>
-              <p className="text-on-surface-variant text-sm">Quét nội dung hình ảnh bằng OCR.</p>
+              <h3 className="text-base md:text-lg font-bold mb-1">Hình ảnh</h3>
+              <p className="text-on-surface-variant text-xs md:text-sm">Quét nội dung hình ảnh bằng OCR.</p>
             </GlassCard>
           </motion.div>
         </div>
@@ -156,8 +156,8 @@ export function HomeView({ onViewChange }: HomeViewProps) {
             viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Vì sao nên chọn AntiScam AI?</h2>
-            <p className="text-on-surface-variant text-lg">Bảo vệ bạn toàn diện trước các hình thức lừa đảo ngày càng tinh vi.</p>
+            <h2 className="text-2xl lg:text-4xl font-bold mb-3 md:mb-4">Vì sao nên chọn AntiScam AI?</h2>
+            <p className="text-on-surface-variant text-base md:text-lg">Bảo vệ bạn toàn diện trước các hình thức lừa đảo ngày càng tinh vi.</p>
           </motion.div>
           
           <div className="space-y-6">

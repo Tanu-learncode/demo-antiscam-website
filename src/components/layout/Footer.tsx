@@ -11,7 +11,7 @@ export function Footer() {
         </div>
         <div className="flex flex-col items-center text-sm text-on-surface-variant text-center gap-1">
           <p>© 2026 ANTISCAM AI. All rights reserved.</p>
-          <p>Developed by Team AntiScam - Dong Thap University.</p>
+          <p>Developed by Chuồng Số 3 - Dong Thap University.</p>
         </div>
       </div>
     </footer>

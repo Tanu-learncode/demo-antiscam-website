@@ -186,7 +186,11 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
               </div>
               <div className="flex justify-between items-center">
                 <span className="opacity-70">Vai trò:</span>
-                <strong className="text-primary bg-primary/10 px-2 py-0.5 rounded uppercase text-xs tracking-wider">{user?.role || 'USER'}</strong>
+                {loading ? (
+                  <div className="h-5 w-16 bg-white/10 rounded animate-pulse"></div>
+                ) : (
+                  <strong className="text-primary bg-primary/10 px-2 py-0.5 rounded uppercase text-xs tracking-wider">{user?.role || 'USER'}</strong>
+                )}
               </div>
             </div>
           </GlassCard>
