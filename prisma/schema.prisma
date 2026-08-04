@@ -8,26 +8,86 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String
   password  String
+  role      Role     @default(USER)
+  avatar    String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  analysisHistories AnalysisHistory[]
+  analyses  Analysis[]
+  posts     CommunityPost[]
+  comments  Comment[]
 }
 
-model AnalysisHistory {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  type      String
-  input     String
-  result    String
-  riskScore Float?
-  reason    String?
-  createdAt DateTime @default(now())
+model Analysis {
+  id             String   @id @default(uuid())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  content        String
+  detectedType   String
+  riskLevel      String
+  confidence     Float
+  summary        String
+  recommendation String
+  indicators     String[]
+  imageName      String?
+  createdAt      DateTime @default(now())
 
   @@index([userId])
+}
+
+enum PostStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PostSection {
+  KNOWLEDGE
+  COMMUNITY
+}
+
+model CommunityPost {
+  id           String     @id @default(uuid())
+  title        String
+  category     String
+  content      String     @db.Text
+  summary      String?    @db.Text
+  link         String?
+  imageUrl     String?    @db.Text
+  videoUrl     String?    @db.Text
+  videoType    String?
+  status       PostStatus @default(PENDING)
+  section      PostSection @default(COMMUNITY)
+  rejectReason String?
+  author       User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId     String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  comments     Comment[]
+
+  @@index([authorId])
+  @@index([status])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+  @@index([postId])
 }

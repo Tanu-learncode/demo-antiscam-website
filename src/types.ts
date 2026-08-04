@@ -49,4 +49,4 @@ export interface EdgeData {
   timestamp: string;
 }
 
-export type ViewType = 'home' | 'analyzer' | 'knowledge' | 'stats' | 'login' | 'register' | 'profile';
+export type ViewType = 'home' | 'analyzer' | 'knowledge' | 'post_detail' | 'stats' | 'login' | 'register' | 'profile' | 'admin_dashboard' | 'admin_articles' | 'my_posts';

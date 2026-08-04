@@ -15,30 +15,48 @@ import { HomeView } from './views/HomeView';
 import { ProfileView } from './views/ProfileView';
 import { KnowledgeView } from './views/KnowledgeView';
 import { StatsView } from './views/StatsView';
+import { AdminDashboardView } from './views/AdminDashboardView';
+import { MyPostsView } from './views/MyPostsView';
+import { PostDetailView } from './views/PostDetailView';
 
 // ViewType imported from src/types.ts
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('home');
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+
+  const handleViewChange = (view: ViewType, postId?: string) => {
+    setCurrentView(view);
+    if (postId !== undefined) {
+      setSelectedPostId(postId);
+    }
+  };
 
   const renderView = () => {
     switch (currentView) {
       case 'home':
-        return <HomeView />;
+        return <HomeView onViewChange={handleViewChange} />;
       case 'analyzer':
         return <AnalyzerView />;
       case 'knowledge':
-        return <KnowledgeView />;
+        return <KnowledgeView onViewDetail={(id) => handleViewChange('post_detail', id)} />;
+      case 'post_detail':
+        return <PostDetailView postId={selectedPostId} onBack={handleViewChange} />;
       case 'stats':
         return <StatsView />;
       case 'login':
-        return <AuthView mode="login" onModeChange={setCurrentView} />;
+        return <AuthView mode="login" onModeChange={handleViewChange} />;
       case 'register':
-        return <AuthView mode="register" onModeChange={setCurrentView} />;
+        return <AuthView mode="register" onModeChange={handleViewChange} />;
       case 'profile':
-        return <ProfileView />;
+        return <ProfileView onViewChange={handleViewChange} />;
+      case 'my_posts':
+        return <MyPostsView onViewDetail={(id) => handleViewChange('post_detail', id)} />;
+      case 'admin_dashboard':
+      case 'admin_articles':
+        return <AdminDashboardView />;
       default:
-        return <HomeView />;
+        return <HomeView onViewChange={handleViewChange} />;
     }
   };
 

@@ -23,4 +23,23 @@ export function parseCookie(cookieHeader: string | null) {
   );
 }
 
+import { prisma } from './prisma';
+
 export { COOKIE_NAME };
+
+export async function requireAdmin(request: Request) {
+  const cookieHeader = request.headers.get('cookie');
+  const cookies = parseCookie(cookieHeader);
+  const token = cookies[COOKIE_NAME];
+
+  if (!token) throw new Error('Not authenticated');
+
+  const payload = verifyToken(token);
+  const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+
+  if (!user || user.role !== 'ADMIN') {
+    throw new Error('Forbidden: Admins only');
+  }
+
+  return user;
+}

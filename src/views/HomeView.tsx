@@ -1,135 +1,306 @@
-import { AlertTriangle, Brain, Lock, Shield, Upload } from 'lucide-react';
-import React from 'react';
-import { GlassCard } from '../components/ui/GlassCard';
+"use client";
 
-export function HomeView() {
+import { AlertTriangle, Lock, Shield, Globe, Mail, MessageSquare, Image as ImageIcon, ArrowRight, Bot, Layers, History, Zap, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion } from 'motion/react';
+import { GlassCard } from '../components/ui/GlassCard';
+import { ViewType } from '../types';
+
+interface HomeViewProps {
+  onViewChange?: (view: ViewType) => void;
+}
+
+export function HomeView({ onViewChange }: HomeViewProps) {
+  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
+  
   return (
     <div className="space-y-20 pb-20">
       {/* Hero Section */}
       <section className="relative pt-32 px-6 flex flex-col items-center text-center max-w-4xl mx-auto">
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -z-10 animate-pulse"></div>
         
-        <span className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm mb-6">
+        <motion.span 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm mb-6"
+        >
           <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
           AI Đã Sẵn Sàng Bảo Vệ Bạn
-        </span>
+        </motion.span>
         
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight leading-tight">
+        <motion.h1 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight leading-tight"
+        >
           Phát Hiện & Cảnh Báo <br/>
           <span className="text-primary text-glow-primary">Lừa Đảo Trực Tuyến</span> Bằng AI
-        </h1>
+        </motion.h1>
         
-        <p className="text-lg text-on-surface-variant max-w-2xl mb-10">
-          Nền tảng AI phân tích liên kết, tin nhắn, hình ảnh và tài khoản ngân hàng để bảo vệ bạn khỏi các mối đe dọa trực tuyến phức tạp nhất.
-        </p>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="text-lg text-on-surface-variant max-w-2xl mb-10"
+        >
+          Nền tảng AI phân tích liên kết, tin nhắn, hình ảnh để bảo vệ bạn khỏi các mối đe dọa trực tuyến phức tạp nhất.
+        </motion.p>
         
-        <div className="flex flex-wrap justify-center gap-4">
-          <button className="bg-primary text-on-primary font-bold px-8 py-4 rounded-xl flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="flex flex-wrap justify-center gap-4"
+        >
+          <button 
+            onClick={() => {
+              if (onViewChange) onViewChange('analyzer');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="bg-primary text-on-primary font-bold px-8 py-4 rounded-xl flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+          >
             <Lock className="w-5 h-5" />
             Kiểm Tra Ngay
           </button>
-          <button className="border border-primary text-primary font-bold px-8 py-4 rounded-xl flex items-center gap-2 hover:bg-primary/5 transition-all">
-            <AlertTriangle className="w-5 h-5" />
-            Báo Cáo Lừa Đảo
-          </button>
+        </motion.div>
+      </section>
+
+      {/* SECTION 1: AntiScam AI có thể giúp bạn kiểm tra */}
+      <section className="px-6 max-w-6xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.2 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="text-center mb-10"
+        >
+          <h2 className="text-3xl font-bold mb-4">AntiScam AI có thể giúp bạn kiểm tra</h2>
+          <p className="text-on-surface-variant text-lg">Phân tích nhiều loại nội dung để phát hiện các dấu hiệu lừa đảo trực tuyến bằng AI.</p>
+        </motion.div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+            className="h-full"
+          >
+            <GlassCard className="h-full p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
+              <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <Globe className="w-7 h-7" />
+              </div>
+              <h3 className="text-lg font-bold mb-1">URL</h3>
+              <p className="text-on-surface-variant text-sm">Phát hiện website giả mạo, link độc hại.</p>
+            </GlassCard>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+            className="h-full"
+          >
+            <GlassCard className="h-full p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
+              <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <Mail className="w-7 h-7" />
+              </div>
+              <h3 className="text-lg font-bold mb-1">Email</h3>
+              <p className="text-on-surface-variant text-sm">Nhận diện email lừa đảo, phishing.</p>
+            </GlassCard>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+            className="h-full"
+          >
+            <GlassCard className="h-full p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
+              <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <MessageSquare className="w-7 h-7" />
+              </div>
+              <h3 className="text-lg font-bold mb-1">Tin nhắn</h3>
+              <p className="text-on-surface-variant text-sm">Phân tích tin nhắn lừa đảo.</p>
+            </GlassCard>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+            className="h-full"
+          >
+            <GlassCard className="h-full p-5 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-default group">
+              <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <ImageIcon className="w-7 h-7" />
+              </div>
+              <h3 className="text-lg font-bold mb-1">Hình ảnh</h3>
+              <p className="text-on-surface-variant text-sm">Quét nội dung hình ảnh bằng OCR.</p>
+            </GlassCard>
+          </motion.div>
         </div>
       </section>
 
-      {/* Mini Analyzer Section */}
-      <section className="px-6 max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-5 gap-6 items-start">
-          <GlassCard className="lg:col-span-3 p-6 relative overflow-hidden">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Brain className="text-primary w-5 h-5" />
-                </div>
-                <h2 className="text-xl font-semibold">Trình Phân Tích Nội Dung</h2>
-              </div>
-              <span className="text-sm text-on-surface-variant">Version 2.4.1</span>
-            </div>
-            
-            <div className="space-y-4">
-              <textarea 
-                className="w-full bg-surface-container-lowest border border-white/10 rounded-xl p-4 text-on-surface placeholder:text-slate-500 focus:outline-none focus:border-primary transition-colors min-h-[160px] resize-none" 
-                placeholder="Dán liên kết (URL), nội dung tin nhắn hoặc thông tin tài khoản ngân hàng nghi ngờ tại đây..."
-              ></textarea>
+      {/* SECTION 2: Vì sao nên chọn */}
+      <section className="px-6 max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12">
+        <div className="flex-1 w-full space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Vì sao nên chọn AntiScam AI?</h2>
+            <p className="text-on-surface-variant text-lg">Bảo vệ bạn toàn diện trước các hình thức lừa đảo ngày càng tinh vi.</p>
+          </motion.div>
+          
+          <div className="space-y-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+              className="group flex items-stretch gap-4 cursor-default transition-all duration-300 hover:translate-x-2"
+              onMouseEnter={() => setHoveredFeature(0)}
+              onMouseLeave={() => setHoveredFeature(null)}
+            >
+              <div className="w-1 bg-white/10 rounded-full transition-colors duration-300 group-hover:bg-primary group-hover:shadow-[0_0_10px_rgba(var(--color-primary),0.5)] my-1"></div>
               
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-surface-container-high hover:bg-surface-container-highest border border-white/5 rounded-xl transition-all">
-                  <Upload className="text-primary w-5 h-5" />
-                  Tải ảnh màn hình
-                </button>
-                <button className="w-full sm:flex-1 bg-primary text-on-primary font-bold py-3 px-6 rounded-xl hover:brightness-110 transition-all">
-                  Phân Tích AI
-                </button>
-              </div>
-            </div>
-          </GlassCard>
-
-          <GlassCard glow="error" className="lg:col-span-2 p-6 relative">
-            <div className="absolute -top-3 -right-3 px-3 py-1 bg-error-container text-on-error-container rounded-full text-xs font-bold animate-pulse">
-              CẢNH BÁO
-            </div>
-            <div className="flex flex-col h-full">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="relative w-20 h-20">
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle cx="40" cy="40" r="36" fill="transparent" stroke="currentColor" strokeWidth="6" className="text-white/5" />
-                    <circle cx="40" cy="40" r="36" fill="transparent" stroke="currentColor" strokeWidth="6" strokeDasharray="226" strokeDashoffset="18" className="text-red-500" />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xl font-bold text-red-500">92%</span>
-                  </div>
+              <div className="flex items-start gap-4 py-1">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(var(--color-primary),0.5)]">
+                  <Bot className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-red-500 mb-1">Nguy Cơ Cao</h3>
-                  <p className="text-sm text-on-surface-variant">Phát hiện: 14:02, Hôm nay</p>
+                  <h3 className="text-xl font-bold mb-1 transition-colors duration-300 group-hover:text-primary">Gemini AI</h3>
+                  <p className="text-on-surface-variant text-sm transition-colors duration-300 group-hover:text-on-surface">Phân tích chuyên sâu và chính xác bằng AI tiên tiến.</p>
                 </div>
               </div>
-              <div className="bg-error-container/20 border border-red-500/30 rounded-xl p-4 mb-6">
-                <p className="text-sm leading-relaxed">
-                  <span className="font-bold text-red-400">Kết luận:</span> Liên kết này có dấu hiệu giả mạo ngân hàng. Các thành phần trang web được thiết kế để đánh cắp mật khẩu OTP.
-                </p>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+              className="group flex items-stretch gap-4 cursor-default transition-all duration-300 hover:translate-x-2"
+              onMouseEnter={() => setHoveredFeature(1)}
+              onMouseLeave={() => setHoveredFeature(null)}
+            >
+              <div className="w-1 bg-white/10 rounded-full transition-colors duration-300 group-hover:bg-primary group-hover:shadow-[0_0_10px_rgba(var(--color-primary),0.5)] my-1"></div>
+              
+              <div className="flex items-start gap-4 py-1">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(var(--color-primary),0.5)]">
+                  <Layers className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1 transition-colors duration-300 group-hover:text-primary">Phân tích đa định dạng</h3>
+                  <p className="text-on-surface-variant text-sm transition-colors duration-300 group-hover:text-on-surface">Hỗ trợ URL, Email, Tin nhắn và cả Hình ảnh.</p>
+                </div>
               </div>
-            </div>
-          </GlassCard>
-        </div>
-      </section>
-
-      {/* Report Form */}
-      <section className="px-6 max-w-4xl mx-auto">
-        <GlassCard className="p-8 md:p-12 relative overflow-hidden border-primary/20">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-semibold mb-4">Gửi Báo Cáo Nghi Ngờ</h2>
-            <p className="text-on-surface-variant max-w-xl mx-auto">Giúp cộng đồng bằng cách báo cáo các hành vi lừa đảo bạn gặp phải. AI sẽ xác minh và cảnh báo người dùng khác.</p>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+              className="group flex items-stretch gap-4 cursor-default transition-all duration-300 hover:translate-x-2"
+              onMouseEnter={() => setHoveredFeature(2)}
+              onMouseLeave={() => setHoveredFeature(null)}
+            >
+              <div className="w-1 bg-white/10 rounded-full transition-colors duration-300 group-hover:bg-primary group-hover:shadow-[0_0_10px_rgba(var(--color-primary),0.5)] my-1"></div>
+              
+              <div className="flex items-start gap-4 py-1">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(var(--color-primary),0.5)]">
+                  <History className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1 transition-colors duration-300 group-hover:text-primary">Lưu lịch sử</h3>
+                  <p className="text-on-surface-variant text-sm transition-colors duration-300 group-hover:text-on-surface">Xem lại các cảnh báo bất cứ lúc nào khi đăng nhập.</p>
+                </div>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+              className="group flex items-stretch gap-4 cursor-default transition-all duration-300 hover:translate-x-2"
+              onMouseEnter={() => setHoveredFeature(3)}
+              onMouseLeave={() => setHoveredFeature(null)}
+            >
+              <div className="w-1 bg-white/10 rounded-full transition-colors duration-300 group-hover:bg-primary group-hover:shadow-[0_0_10px_rgba(var(--color-primary),0.5)] my-1"></div>
+              
+              <div className="flex items-start gap-4 py-1">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(var(--color-primary),0.5)]">
+                  <Zap className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1 transition-colors duration-300 group-hover:text-primary">Phân tích nhanh</h3>
+                  <p className="text-on-surface-variant text-sm transition-colors duration-300 group-hover:text-on-surface">Trả kết quả gần như ngay lập tức chỉ sau vài giây.</p>
+                </div>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
+              className="group flex items-stretch gap-4 cursor-default transition-all duration-300 hover:translate-x-2"
+              onMouseEnter={() => setHoveredFeature(4)}
+              onMouseLeave={() => setHoveredFeature(null)}
+            >
+              <div className="w-1 bg-white/10 rounded-full transition-colors duration-300 group-hover:bg-primary group-hover:shadow-[0_0_10px_rgba(var(--color-primary),0.5)] my-1"></div>
+              
+              <div className="flex items-start gap-4 py-1">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(var(--color-primary),0.5)]">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1 transition-colors duration-300 group-hover:text-primary">Bảo mật dữ liệu</h3>
+                  <p className="text-on-surface-variant text-sm transition-colors duration-300 group-hover:text-on-surface">An toàn tuyệt đối, không chia sẻ với bên thứ ba.</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-on-surface-variant block">Liên kết / Nội dung nghi ngờ</label>
-                <input type="text" className="w-full bg-surface-container-low border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary" placeholder="https://..." />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-on-surface-variant block">Loại hình lừa đảo</label>
-                <select className="w-full bg-surface-container-low border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary text-on-surface">
-                  <option>Chọn loại hình</option>
-                  <option>Giả mạo ngân hàng</option>
-                  <option>Lừa đảo trúng thưởng</option>
-                </select>
+        </div>
+        
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: false, amount: 0.2 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          className="flex-1 w-full flex justify-center relative"
+        >
+          <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center">
+            <div className={`absolute inset-0 rounded-full transition-all duration-500 ${hoveredFeature !== null ? 'bg-primary/40 blur-[100px] scale-110' : 'bg-primary/20 blur-[80px] animate-pulse'}`}></div>
+            
+            <svg viewBox="0 0 100 120" className="w-full h-full text-primary relative z-10 transition-transform duration-500" style={{ transform: hoveredFeature !== null ? 'scale(1.05)' : 'scale(1)' }} fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M50 5 L90 20 L90 60 C90 90 50 115 50 115 C50 115 10 90 10 60 L10 20 Z" 
+                    className={`transition-colors duration-500 ${hoveredFeature !== null ? 'stroke-primary/80' : 'stroke-primary/30'}`}
+                    strokeLinejoin="round" 
+                    strokeLinecap="round" />
+              <path d="M50 15 L80 27 L80 60 C80 82 50 102 50 102 C50 102 20 82 20 60 L20 27 Z" 
+                    className={`transition-all duration-500 fill-surface-container-high/80 backdrop-blur-md ${hoveredFeature !== null ? 'stroke-primary shadow-[0_0_20px_rgba(var(--color-primary),0.8)]' : 'stroke-primary'}`}
+                    strokeLinejoin="round" 
+                    strokeLinecap="round" />
+            </svg>
+            
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <div className={`p-6 bg-primary/10 rounded-full border transition-all duration-500 backdrop-blur-sm shadow-[0_0_30px_rgba(var(--color-primary),0.3)] ${hoveredFeature !== null ? 'border-primary shadow-[0_0_50px_rgba(var(--color-primary),0.8)] scale-110' : 'border-primary/30 animate-pulse'}`}>
+                <Bot className={`w-16 h-16 text-primary transition-all duration-500 ${hoveredFeature !== null ? 'drop-shadow-[0_0_10px_rgba(var(--color-primary),0.8)]' : ''}`} />
               </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-on-surface-variant block">Mô tả chi tiết</label>
-              <textarea className="w-full bg-surface-container-low border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary min-h-[120px] resize-none" placeholder="Mô tả cách bạn tiếp cận hoặc nội dung tin nhắn..."></textarea>
-            </div>
-            <button type="submit" className="w-full bg-primary text-on-primary font-bold py-4 rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 transition-all flex items-center justify-center gap-2">
-              <Shield className="w-5 h-5" />
-              Gửi Báo Cáo Ngay
-            </button>
-          </form>
-        </GlassCard>
+          </div>
+        </motion.div>
       </section>
     </div>
   );

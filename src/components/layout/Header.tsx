@@ -9,11 +9,11 @@ interface HeaderProps {
 }
 
 export function Header({ currentView, onViewChange }: HeaderProps) {
-  const [user, setUser] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; name: string; email: string; role?: string; avatar?: string } | null>(null);
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
+    const fetchUser = async () => {
       try {
         const res = await fetch('/api/auth/me', { cache: 'no-store' });
         const data = await res.json();
@@ -22,8 +22,20 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
       } catch (err) {
         // ignore
       }
-    })();
-    return () => { mounted = false; };
+    };
+    
+    fetchUser();
+
+    const handleUpdate = () => {
+      fetchUser();
+    };
+    
+    window.addEventListener('user-updated', handleUpdate);
+
+    return () => { 
+      mounted = false; 
+      window.removeEventListener('user-updated', handleUpdate);
+    };
   }, []);
 
   const navItems: { id: ViewType; label: string }[] = [
@@ -32,6 +44,12 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
     { id: 'knowledge', label: 'Kho kiến thức' },
     { id: 'stats', label: 'Thống kê & Báo cáo' },
   ];
+
+  if (user?.role === 'ADMIN') {
+    navItems.push(
+      { id: 'admin_articles', label: 'Quản lý bài viết' }
+    );
+  }
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -87,7 +105,13 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
             ) : (
               <div className="flex items-center gap-3">
                 <span className="text-sm text-on-surface-variant cursor-pointer" onClick={() => onViewChange('profile')}>Xin chào, {user.name}</span>
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">{user.name?.split(' ')[0]?.[0] || 'U'}</div>
+                {user.avatar ? (
+                  <img src={user.avatar} className="w-8 h-8 rounded-full object-cover border border-primary/50 cursor-pointer" onClick={() => onViewChange('profile')} />
+                ) : (
+                  <div onClick={() => onViewChange('profile')} className="cursor-pointer w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </div>
+                )}
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 text-sm text-on-surface-variant hover:text-primary transition-colors font-medium"

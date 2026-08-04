@@ -28,13 +28,13 @@ export async function GET(request: Request) {
     const skip = (Math.max(1, page) - 1) * limit;
 
     const where: any = { userId };
-    if (type) where.type = type;
-    if (result) where.result = result;
-    if (q) where.OR = [{ input: { contains: q, mode: 'insensitive' } }, { reason: { contains: q, mode: 'insensitive' } }];
+    if (type) where.detectedType = type;
+    if (result) where.riskLevel = result;
+    if (q) where.OR = [{ content: { contains: q, mode: 'insensitive' } }, { summary: { contains: q, mode: 'insensitive' } }];
 
     const [items, total] = await Promise.all([
-      prisma.analysisHistory.findMany({ where, orderBy: { createdAt: sort }, skip, take: limit }),
-      prisma.analysisHistory.count({ where }),
+      prisma.analysis.findMany({ where, orderBy: { createdAt: sort }, skip, take: limit }),
+      prisma.analysis.count({ where }),
     ]);
 
     return NextResponse.json({ ok: true, items, total, page, limit });
