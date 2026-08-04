@@ -3,9 +3,20 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { CheckCircle, XCircle, Clock, Eye, X, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+let adminCache: {
+  user: any | null;
+  posts: Record<string, any[]>;
+  timestamp: number;
+} = {
+  user: null,
+  posts: {},
+  timestamp: 0,
+};
+
 export function AdminDashboardView() {
-  const [user, setUser] = useState<{ role?: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ role?: string } | null>(adminCache.user);
+  const [authLoading, setAuthLoading] = useState(!adminCache.user);
+  const [postsLoading, setPostsLoading] = useState(!adminCache.posts['PENDING']);
   const [activeTab, setActiveTab] = useState<'PENDING' | 'APPROVED'>('PENDING');
   const [posts, setPosts] = useState<any[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
@@ -13,29 +24,70 @@ export function AdminDashboardView() {
   const [editSections, setEditSections] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    fetch('/api/auth/me')
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok && data.user) setUser(data.user);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    let mounted = true;
+    const fetchData = async () => {
+      const isCacheValid = Date.now() - adminCache.timestamp < 300000;
+      
+      const reqs = [];
+      if (!isCacheValid || !adminCache.user) {
+        reqs.push(fetch('/api/auth/me').then(r => r.json()).then(data => {
+          if (mounted && data.ok && data.user) {
+            setUser(data.user);
+            adminCache.user = data.user;
+          }
+        }));
+      } else {
+        reqs.push(Promise.resolve());
+      }
 
-  const fetchPosts = () => {
+      reqs.push(fetch(`/api/posts?status=PENDING`).then(r => r.json()).then(data => {
+        if (mounted && data.ok) {
+          setPosts(prev => activeTab === 'PENDING' ? data.posts : prev);
+          adminCache.posts['PENDING'] = data.posts;
+          adminCache.timestamp = Date.now();
+        }
+      }));
+
+      await Promise.all(reqs).catch(() => {});
+      if (mounted) {
+        setAuthLoading(false);
+        if (activeTab === 'PENDING') setPostsLoading(false);
+      }
+    };
+
+    fetchData();
+    return () => { mounted = false; };
+  }, []); // eslint-disable-line
+
+  useEffect(() => {
+    if (activeTab === 'PENDING' && postsLoading) return; 
+
+    if (adminCache.posts[activeTab]) {
+      setPosts(adminCache.posts[activeTab]);
+      setPostsLoading(false);
+    } else {
+      setPostsLoading(true);
+    }
+
+    let ignore = false;
     fetch(`/api/posts?status=${activeTab}`)
       .then(res => res.json())
       .then(data => {
-        if (data.ok) setPosts(data.posts);
+        if (data.ok) {
+          adminCache.posts[activeTab] = data.posts;
+          if (!ignore) {
+            setPosts(data.posts);
+          }
+        }
       })
-      .catch(console.error);
-  };
-
-  useEffect(() => {
-    if (user?.role === 'ADMIN') {
-      fetchPosts();
-    }
-  }, [activeTab, user]);
+      .finally(() => {
+        if (!ignore) {
+          setPostsLoading(false);
+        }
+      });
+      
+    return () => { ignore = true; };
+  }, [activeTab]);
 
   const handleAction = async (id: string, status: 'APPROVED' | 'REJECTED', section?: string) => {
     let rejectReason = '';
@@ -55,7 +107,13 @@ export function AdminDashboardView() {
       const data = await res.json();
       if (data.ok) {
         if (viewingPost?.id === id) setViewingPost(null);
-        fetchPosts();
+        // Refresh posts for the active tab manually without reloading everything
+        const refreshRes = await fetch(`/api/posts?status=${activeTab}`);
+        const refreshData = await refreshRes.json();
+        if (refreshData.ok) {
+          adminCache.posts[activeTab] = refreshData.posts;
+          setPosts(refreshData.posts);
+        }
       } else {
         alert(data.message || 'Có lỗi xảy ra');
       }
@@ -65,9 +123,7 @@ export function AdminDashboardView() {
     setActionLoading(false);
   };
 
-  if (loading) return <div className="pt-24 px-6 text-center">Đang tải...</div>;
-
-  if (user?.role !== 'ADMIN') {
+  if (!authLoading && user?.role !== 'ADMIN') {
     return (
       <div className="pt-24 px-6 text-center text-error">
         <h1 className="text-2xl font-bold">Quyền truy cập bị từ chối</h1>
@@ -78,10 +134,24 @@ export function AdminDashboardView() {
 
   return (
     <div className="pt-24 px-6 pb-20 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-primary">Quản lý bài viết</h1>
+      <motion.h1 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="text-3xl font-bold mb-6 text-primary"
+      >
+        Quản lý bài viết
+      </motion.h1>
       
       {/* Tabs */}
-      <div className="flex gap-4 mb-8 border-b border-outline-variant/30 pb-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+        className="flex gap-4 mb-8 border-b border-outline-variant/30 pb-4"
+      >
         {[
           { id: 'PENDING', label: 'Chờ duyệt', icon: <Clock className="w-4 h-4" /> },
           { id: 'APPROVED', label: 'Đã duyệt', icon: <CheckCircle className="w-4 h-4" /> },
@@ -95,14 +165,15 @@ export function AdminDashboardView() {
             {tab.label}
           </button>
         ))}
-      </div>
+      </motion.div>
 
-      <GlassCard className="overflow-x-auto">
-        {posts.length === 0 ? (
-          <div className="text-center py-12 text-on-surface-variant">
-            Không có bài viết nào trong mục này.
-          </div>
-        ) : (
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+      >
+        <GlassCard className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="border-b border-outline-variant/30 text-on-surface-variant text-sm bg-surface-container-highest/50">
@@ -115,9 +186,32 @@ export function AdminDashboardView() {
               </tr>
             </thead>
             <tbody>
-              <AnimatePresence>
-                {posts.map((post, idx) => (
-                  <motion.tr 
+              {postsLoading ? (
+                Array(5).fill(0).map((_, idx) => (
+                  <tr key={`skeleton-${idx}`} className="border-b border-outline-variant/10">
+                    <td className="p-4"><div className="h-5 w-3/4 bg-surface-container-highest rounded animate-pulse"></div></td>
+                    <td className="p-4"><div className="h-5 w-24 bg-surface-container-highest rounded animate-pulse mb-1"></div><div className="h-3 w-32 bg-surface-container-highest rounded animate-pulse"></div></td>
+                    <td className="p-4"><div className="h-5 w-16 bg-surface-container-highest rounded animate-pulse"></div></td>
+                    <td className="p-4"><div className="h-6 w-20 bg-surface-container-highest rounded animate-pulse"></div></td>
+                    <td className="p-4"><div className="h-5 w-24 bg-surface-container-highest rounded animate-pulse"></div></td>
+                    <td className="p-4">
+                      <div className="flex justify-center gap-2">
+                        <div className="h-8 w-8 bg-surface-container-highest rounded animate-pulse"></div>
+                        <div className="h-8 w-8 bg-surface-container-highest rounded animate-pulse"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : posts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-12 text-on-surface-variant">
+                    Không có bài viết nào trong mục này.
+                  </td>
+                </tr>
+              ) : (
+                <AnimatePresence key={activeTab}>
+                  {posts.map((post, idx) => (
+                    <motion.tr 
                     key={post.id} 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -185,11 +279,12 @@ export function AdminDashboardView() {
                     </td>
                   </motion.tr>
                 ))}
-              </AnimatePresence>
+                </AnimatePresence>
+              )}
             </tbody>
           </table>
-        )}
       </GlassCard>
+      </motion.div>
 
       {/* Modal Xem chi tiết */}
       <AnimatePresence>

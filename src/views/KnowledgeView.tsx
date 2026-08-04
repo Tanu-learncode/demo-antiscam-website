@@ -43,6 +43,23 @@ export function KnowledgeView({ onViewDetail }: { onViewDetail?: (id: string) =>
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  useEffect(() => {
+    const handleUserUpdate = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail && detail.userId) {
+        const updateAuthor = (p: any) => 
+          p.author?.id === detail.userId 
+            ? { ...p, author: { ...p.author, avatar: detail.avatar } } 
+            : p;
+        
+        setKnowledgePosts(prev => prev.map(updateAuthor));
+        setCommunityPosts(prev => prev.map(updateAuthor));
+      }
+    };
+    window.addEventListener('user-updated', handleUserUpdate);
+    return () => window.removeEventListener('user-updated', handleUserUpdate);
+  }, []);
+
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setDebouncedQuery(searchQuery);
@@ -127,9 +144,13 @@ export function KnowledgeView({ onViewDetail }: { onViewDetail?: (id: string) =>
         </p>
         <div className="mt-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
-              {post.author?.name?.charAt(0)?.toUpperCase() || '?'}
-            </div>
+            {post.author?.avatar ? (
+              <img src={post.author.avatar} alt={post.author.name} className="w-6 h-6 rounded-full object-cover shrink-0" />
+            ) : (
+              <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
+                {post.author?.name?.charAt(0)?.toUpperCase() || '?'}
+              </div>
+            )}
             <span className="text-xs text-outline font-medium">{post.author?.name || 'Ẩn danh'}</span>
           </div>
         </div>

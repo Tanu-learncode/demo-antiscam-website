@@ -39,6 +39,7 @@ model Analysis {
   recommendation String
   indicators     String[]
   imageName      String?
+  imageUrl       String?  @db.Text
   createdAt      DateTime @default(now())
 
   @@index([userId])

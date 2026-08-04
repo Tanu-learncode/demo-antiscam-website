@@ -207,7 +207,13 @@ export function StatsView() {
   return (
     <div className="pt-24 pb-20 px-6 max-w-7xl mx-auto space-y-8">
       {/* Header & Tabs */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="flex flex-col md:flex-row md:items-end justify-between gap-6"
+      >
         <div>
           <div className="flex items-center gap-2 text-primary mb-2">
             <Activity className="w-5 h-5" />
@@ -222,9 +228,15 @@ export function StatsView() {
           <AlertTriangle className="w-5 h-5" />
           Gửi báo cáo lừa đảo
         </button>
-      </div>
+      </motion.div>
 
-      <div className="flex flex-wrap gap-2 border-b border-outline-variant/30 pb-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+        className="flex flex-nowrap md:flex-wrap gap-2 border-b border-outline-variant/30 pb-4 overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      >
         {[
           { id: 'overview', label: 'Tổng quan', icon: Activity },
           { id: 'ai', label: 'AI Analytics', icon: BrainCircuit },
@@ -233,17 +245,17 @@ export function StatsView() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all ${
+            className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all snap-start shrink-0 whitespace-nowrap ${
               activeTab === tab.id 
                 ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' 
                 : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
             }`}
           >
-            <tab.icon className="w-4 h-4" />
+            <tab.icon className="w-4 h-4 shrink-0" />
             {tab.label}
           </button>
         ))}
-      </div>
+      </motion.div>
 
       {loading ? (
         <div className="py-20 text-center text-on-surface-variant font-medium animate-pulse">Đang tải dữ liệu...</div>

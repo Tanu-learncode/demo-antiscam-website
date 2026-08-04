@@ -42,7 +42,7 @@ export function PostDetailView({ postId, onBack }: PostDetailViewProps) {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
+  const fetchPost = () => {
     if (!postId) {
       setError(true);
       setLoading(false);
@@ -63,7 +63,34 @@ export function PostDetailView({ postId, onBack }: PostDetailViewProps) {
         setError(true);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchPost();
   }, [postId]);
+
+  useEffect(() => {
+    const handleUserUpdate = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail && detail.userId) {
+        setPost((prev: any) => {
+          if (!prev) return prev;
+          let newPost = { ...prev };
+          if (newPost.author?.id === detail.userId) {
+            newPost.author = { ...newPost.author, avatar: detail.avatar };
+          }
+          if (newPost.comments) {
+            newPost.comments = newPost.comments.map((c: any) => 
+              c.author?.id === detail.userId ? { ...c, author: { ...c.author, avatar: detail.avatar } } : c
+            );
+          }
+          return newPost;
+        });
+      }
+    };
+    window.addEventListener('user-updated', handleUserUpdate);
+    return () => window.removeEventListener('user-updated', handleUserUpdate);
+  }, []);
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,7 +200,11 @@ export function PostDetailView({ postId, onBack }: PostDetailViewProps) {
 
           <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="flex flex-wrap items-center gap-6 text-on-surface-variant mb-10 pb-8 border-b border-outline-variant/30">
             <div className="flex items-center gap-2">
-            <User className="w-5 h-5" />
+            {post.author?.avatar ? (
+              <img src={post.author.avatar} alt={post.author.name} className="w-6 h-6 rounded-full object-cover shrink-0" />
+            ) : (
+              <User className="w-5 h-5" />
+            )}
             <span className="font-medium">{post.author?.name || 'Ẩn danh'}</span>
           </div>
           <div className="flex items-center gap-2">
@@ -183,14 +214,6 @@ export function PostDetailView({ postId, onBack }: PostDetailViewProps) {
         </motion.div>
 
           <div className="prose prose-invert max-w-none prose-lg prose-img:rounded-xl prose-img:shadow-lg prose-a:text-primary">
-            {post.imageUrl && (
-              <motion.div 
-                variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.6 } } }}
-                className="mb-10 rounded-2xl overflow-hidden border border-outline-variant/30 shadow-2xl"
-              >
-                <img src={post.imageUrl} alt={post.title} className="w-full h-auto object-cover" />
-              </motion.div>
-            )}
 
             {post.videoType && post.videoUrl && (
               <motion.div 
@@ -279,9 +302,13 @@ export function PostDetailView({ postId, onBack }: PostDetailViewProps) {
                 exit={{ opacity: 0, scale: 0.95, height: 0, marginTop: 0, marginBottom: 0, overflow: 'hidden', transition: { duration: 0.2 } }}
                 className="flex gap-4 p-5 rounded-xl bg-surface-container border border-outline-variant/30 relative group"
               >
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex-shrink-0 flex items-center justify-center text-primary font-bold">
-                  {comment.author?.name?.charAt(0)?.toUpperCase() || '?'}
-                </div>
+                {comment.author?.avatar ? (
+                  <img src={comment.author.avatar} alt={comment.author.name} className="w-10 h-10 min-w-10 min-h-10 aspect-square shrink-0 rounded-full object-cover" />
+                ) : (
+                  <div className="w-10 h-10 min-w-10 min-h-10 aspect-square shrink-0 rounded-full bg-primary/20 flex-shrink-0 flex items-center justify-center text-primary font-bold">
+                    {comment.author?.name?.charAt(0)?.toUpperCase() || '?'}
+                  </div>
+                )}
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <span className="font-bold text-on-surface">{comment.author?.name || 'Ẩn danh'}</span>

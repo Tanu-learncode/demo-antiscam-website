@@ -13,6 +13,7 @@ export type AnalysisItem = {
   recommendation: string;
   indicators: string[];
   imageName?: string | null;
+  imageUrl?: string | null;
   createdAt: string;
 };
 
@@ -25,6 +26,7 @@ interface Props {
 
 export function AnalysisHistoryModal({ isOpen, onClose, items, loading }: Props) {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [zoomImage, setZoomImage] = React.useState<string | null>(null);
 
   const selectedItem = items.find(it => it.id === selectedId);
 
@@ -88,7 +90,14 @@ export function AnalysisHistoryModal({ isOpen, onClose, items, loading }: Props)
                           {new Date(item.createdAt).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      <p className="text-sm text-on-surface-variant line-clamp-2 mb-3">{item.content}</p>
+                      {item.imageUrl ? (
+                        <div className="flex items-start gap-3 mb-3">
+                          <img src={item.imageUrl} alt="Thumbnail" className="w-14 h-14 object-cover rounded border border-outline-variant/30 shrink-0" />
+                          <p className="text-sm text-on-surface-variant line-clamp-2 flex-1">{item.content}</p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-on-surface-variant line-clamp-2 mb-3">{item.content}</p>
+                      )}
                       <div className="flex items-center gap-3">
                         <span className={`text-xs px-2 py-1 rounded-md font-medium uppercase ${
                            item.riskLevel.toLowerCase() === 'high' ? 'bg-error/20 text-error' : 
@@ -134,7 +143,30 @@ export function AnalysisHistoryModal({ isOpen, onClose, items, loading }: Props)
 
                   <div className="space-y-6">
                     <div>
-                      <h4 className="font-semibold mb-2 text-on-surface flex items-center gap-2"><Brain className="w-4 h-4 text-primary" /> Tóm tắt</h4>
+                      <h4 className="font-semibold mb-2 text-on-surface flex items-center gap-2"><Brain className="w-4 h-4 text-primary" /> Dữ liệu đã gửi</h4>
+                      
+                      {selectedItem.imageUrl ? (
+                        <div className="mb-4">
+                          <div 
+                            className="relative w-full max-h-64 rounded-xl overflow-hidden border border-outline-variant/30 cursor-zoom-in group bg-black/50"
+                            onClick={() => setZoomImage(selectedItem.imageUrl!)}
+                          >
+                            <img src={selectedItem.imageUrl} alt="Uploaded Image" className="w-full h-full max-h-64 object-contain" />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-colors">
+                              <Search className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 drop-shadow-md transition-opacity" />
+                            </div>
+                          </div>
+                          <div className="p-3 bg-surface-container-highest rounded-lg text-sm text-on-surface-variant whitespace-pre-wrap border border-outline-variant/10 mt-3">
+                            {selectedItem.content}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-surface-container-highest rounded-lg text-sm text-on-surface-variant whitespace-pre-wrap border border-outline-variant/10 mb-4">
+                          {selectedItem.content}
+                        </div>
+                      )}
+
+                      <h4 className="font-semibold mb-2 text-on-surface flex items-center gap-2 mt-6"><Brain className="w-4 h-4 text-primary" /> Kết quả phân tích</h4>
                       {selectedItem.imageName && (
                         <div className="mb-3 p-2 bg-primary/10 rounded-lg inline-flex items-center gap-2 border border-primary/20">
                           <span className="text-xs font-semibold text-primary">Ảnh đính kèm:</span>
@@ -177,8 +209,31 @@ export function AnalysisHistoryModal({ isOpen, onClose, items, loading }: Props)
     </AnimatePresence>
   );
 
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-  return null;
+  return (
+    <>
+      {typeof window !== 'undefined' ? createPortal(modalContent, document.body) : null}
+      
+      {/* Zoom Modal */}
+      <AnimatePresence>
+        {zoomImage && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm" onClick={() => setZoomImage(null)}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative max-w-[90vw] max-h-[90vh]"
+            >
+              <button 
+                onClick={() => setZoomImage(null)}
+                className="absolute -top-12 right-0 p-2 text-white hover:text-primary transition-colors bg-black/50 rounded-full"
+              >
+                <X className="w-8 h-8" />
+              </button>
+              <img src={zoomImage} alt="Zoomed" className="w-full h-full max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
 }

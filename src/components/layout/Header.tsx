@@ -114,9 +114,9 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
               <div className="flex items-center gap-3">
                 <span className="text-sm text-on-surface-variant cursor-pointer" onClick={() => handleNavClick('profile')}>Xin chào, {user.name}</span>
                 {user.avatar ? (
-                  <img src={user.avatar} className="w-8 h-8 rounded-full object-cover border border-primary/50 cursor-pointer" onClick={() => handleNavClick('profile')} />
+                  <img src={user.avatar} className="w-8 h-8 min-w-8 min-h-8 aspect-square shrink-0 rounded-full object-cover border border-primary/50 cursor-pointer" onClick={() => handleNavClick('profile')} />
                 ) : (
-                  <div onClick={() => handleNavClick('profile')} className="cursor-pointer w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                  <div onClick={() => handleNavClick('profile')} className="cursor-pointer w-8 h-8 min-w-8 min-h-8 aspect-square shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
                     {user.name?.charAt(0)?.toUpperCase() || 'U'}
                   </div>
                 )}
@@ -198,9 +198,9 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
                       onClick={() => handleNavClick('profile')}
                     >
                       {user.avatar ? (
-                        <img src={user.avatar} className="w-12 h-12 rounded-full object-cover border border-primary/50 shrink-0" />
+                        <img src={user.avatar} className="w-12 h-12 min-w-12 min-h-12 aspect-square shrink-0 rounded-full object-cover border border-primary/50" />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl shrink-0">
+                        <div className="w-12 h-12 min-w-12 min-h-12 aspect-square shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl">
                           {user.name?.charAt(0)?.toUpperCase() || 'U'}
                         </div>
                       )}

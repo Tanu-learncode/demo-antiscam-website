@@ -17,6 +17,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             name: true,
             email: true,
             role: true,
+            avatar: true,
           }
         },
         comments: {
@@ -26,6 +27,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                 id: true,
                 name: true,
                 role: true,
+                avatar: true,
               }
             }
           },

@@ -50,6 +50,9 @@ const itemVariants: Variants = {
   }
 };
 
+let profileCache: { user: any, items: AnalysisItem[], timestamp: number } | null = null;
+let hasAnimated = false;
+
 export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) => void }) {
   const [items, setItems] = useState<AnalysisItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -59,15 +62,30 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
   const [isNavigating, setIsNavigating] = useState(false);
 
   const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/history?limit=100', { cache: 'no-store' });
-      const data = await res.json();
-      if (res.ok) setItems(data.items || []);
+    if (profileCache && (Date.now() - profileCache.timestamp < 1000 * 60 * 5)) {
+      setUser(profileCache.user);
+      setItems(profileCache.items);
+    } else {
+      setLoading(true);
+    }
 
-      const ures = await fetch('/api/auth/me', { cache: 'no-store' });
+    try {
+      const [res, ures] = await Promise.all([
+        fetch('/api/history?limit=100', { cache: 'no-store' }),
+        fetch('/api/auth/me', { cache: 'no-store' })
+      ]);
+      
+      const data = await res.json();
       const udata = await ures.json();
-      if (ures.ok && udata?.user) setUser(udata.user);
+      
+      const newItems = res.ok ? (data.items || []) : [];
+      const newUser = (ures.ok && udata?.user) ? udata.user : null;
+      
+      setItems(newItems);
+      if (newUser) setUser(newUser);
+
+      profileCache = { user: newUser, items: newItems, timestamp: Date.now() };
+      hasAnimated = true;
     } catch (err) {
       console.error(err);
     } finally {
@@ -132,23 +150,27 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
 
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="flex items-center justify-between mb-8"
       >
         <h1 className="text-3xl font-bold text-on-surface flex items-center gap-4">
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
             whileHover={{ scale: 1.08 }}
             className="relative cursor-pointer group"
             onClick={() => setIsSettingsOpen(true)}
           >
-            {user?.avatar ? (
-              <img src={user.avatar} className="w-12 h-12 rounded-full object-cover border-2 border-primary/50 group-hover:shadow-[0_0_15px_rgba(45,212,191,0.5)] transition-all" />
+            {loading && !user ? (
+              <div className="w-12 h-12 min-w-12 min-h-12 aspect-square shrink-0 rounded-full bg-white/10 animate-pulse border-2 border-transparent"></div>
+            ) : user?.avatar ? (
+              <img src={user.avatar} className="w-12 h-12 min-w-12 min-h-12 aspect-square shrink-0 rounded-full object-cover border-2 border-primary/50 group-hover:shadow-[0_0_15px_rgba(45,212,191,0.5)] transition-all" />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl group-hover:shadow-[0_0_15px_rgba(45,212,191,0.5)] transition-all">
+              <div className="w-12 h-12 min-w-12 min-h-12 aspect-square shrink-0 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl group-hover:shadow-[0_0_15px_rgba(45,212,191,0.5)] transition-all">
                 {user?.name?.charAt(0)?.toUpperCase() || <User className="w-6 h-6" />}
               </div>
             )}
@@ -166,7 +188,8 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
       <motion.div 
         variants={containerVariants}
         initial="hidden"
-        animate="visible"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
         className="grid grid-cols-1 md:grid-cols-3 gap-6"
       >
         {/* Cột 1: Thông tin & Huy hiệu */}
@@ -178,11 +201,11 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
             <div className="text-sm text-on-surface-variant space-y-3 relative z-10">
               <div className="flex justify-between items-center border-b border-white/5 pb-2">
                 <span className="opacity-70">Tên hiển thị:</span>
-                <strong className="text-on-surface">{user?.name || '—'}</strong>
+                {loading && !user ? <div className="h-5 w-24 bg-white/10 rounded animate-pulse"></div> : <strong className="text-on-surface">{user?.name || '—'}</strong>}
               </div>
               <div className="flex justify-between items-center border-b border-white/5 pb-2">
                 <span className="opacity-70">Email:</span>
-                <strong className="text-on-surface">{user?.email || '—'}</strong>
+                {loading && !user ? <div className="h-5 w-32 bg-white/10 rounded animate-pulse"></div> : <strong className="text-on-surface">{user?.email || '—'}</strong>}
               </div>
               <div className="flex justify-between items-center">
                 <span className="opacity-70">Vai trò:</span>
@@ -219,18 +242,37 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
               <ShieldCheck className="w-5 h-5 text-success" /> Lịch sử phân tích
             </h2>
             <div className="text-sm text-on-surface-variant space-y-3 mb-6">
-              <div className="flex justify-between items-center bg-surface-container-lowest p-3 rounded-lg border border-white/5">
-                <span>Tổng số lần quét:</span> 
-                <strong className="text-lg text-on-surface"><CountUpText value={totalAnalyses} /></strong>
-              </div>
-              <div className="flex justify-between items-center p-2">
-                <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-success" /> An toàn:</span> 
-                <strong className="text-success"><CountUpText value={safeAnalyses} /></strong>
-              </div>
-              <div className="flex justify-between items-center p-2">
-                <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-warning" /> Cảnh báo rủi ro:</span> 
-                <strong className="text-warning"><CountUpText value={warningAnalyses} /></strong>
-              </div>
+              {loading && items.length === 0 ? (
+                <>
+                  <div className="flex justify-between items-center bg-surface-container-lowest p-3 rounded-lg border border-white/5">
+                    <span>Tổng số lần quét:</span> 
+                    <div className="h-6 w-8 bg-white/10 rounded animate-pulse"></div>
+                  </div>
+                  <div className="flex justify-between items-center p-2">
+                    <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-success" /> An toàn:</span> 
+                    <div className="h-5 w-6 bg-white/10 rounded animate-pulse"></div>
+                  </div>
+                  <div className="flex justify-between items-center p-2">
+                    <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-warning" /> Cảnh báo rủi ro:</span> 
+                    <div className="h-5 w-6 bg-white/10 rounded animate-pulse"></div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between items-center bg-surface-container-lowest p-3 rounded-lg border border-white/5">
+                    <span>Tổng số lần quét:</span> 
+                    <strong className="text-lg text-on-surface"><CountUpText value={totalAnalyses} /></strong>
+                  </div>
+                  <div className="flex justify-between items-center p-2">
+                    <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-success" /> An toàn:</span> 
+                    <strong className="text-success"><CountUpText value={safeAnalyses} /></strong>
+                  </div>
+                  <div className="flex justify-between items-center p-2">
+                    <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-warning" /> Cảnh báo rủi ro:</span> 
+                    <strong className="text-warning"><CountUpText value={warningAnalyses} /></strong>
+                  </div>
+                </>
+              )}
             </div>
             <button 
               onClick={() => setIsModalOpen(true)}
@@ -254,7 +296,8 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
             <div className="w-full h-3 bg-surface-container-highest rounded-full overflow-hidden mb-2">
               <motion.div 
                 initial={{ width: 0 }} 
-                animate={{ width: `${safetyScore}%` }} 
+                whileInView={{ width: `${safetyScore}%` }} 
+                viewport={{ once: true }}
                 transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
                 className={`h-full rounded-full ${scoreColor.split(' ')[0]}`}
               ></motion.div>
@@ -297,7 +340,7 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
               </button>
               <button 
                 onClick={() => onViewChange && onViewChange('my_posts')}
-                className="w-full px-4 py-3 border border-outline-variant/30 text-on-surface hover:bg-surface-container rounded-xl text-sm font-bold hover:scale-[1.02] active:scale-95 transition-all text-left flex items-center gap-3"
+                className="w-full px-4 py-3 border border-outline-variant/30 text-on-surface hover:bg-surface-container rounded-xl text-sm font-bold hover:scale-[1.02] active:scale-95 transition-all flex justify-center items-center gap-2"
               >
                 📝 Bài viết cộng đồng của tôi
               </button>
@@ -389,7 +432,9 @@ function AccountSettingsModal({ isOpen, user, onClose, onUpdate, onViewChange }:
       const data = await res.json();
       if (data.ok) {
         // No alert, just seamless close
-        window.dispatchEvent(new Event('user-updated'));
+        window.dispatchEvent(new CustomEvent('user-updated', { 
+          detail: { userId: user?.id, avatar: payload.avatar } 
+        }));
         onUpdate();
         onClose();
       } else {
@@ -470,7 +515,7 @@ function AccountSettingsModal({ isOpen, user, onClose, onUpdate, onViewChange }:
                 
                 {/* Avatar Selection */}
                 <div className="flex flex-col items-center mb-8 relative">
-                  <div className="w-24 h-24 rounded-full bg-surface-container-highest border-4 border-surface group relative cursor-pointer shadow-lg overflow-hidden">
+                  <div className="w-24 h-24 min-w-24 min-h-24 aspect-square shrink-0 rounded-full bg-surface-container-highest border-4 border-surface group relative cursor-pointer shadow-lg overflow-hidden">
                     <AnimatePresence mode="wait">
                       {isUploading ? (
                         <motion.div 
@@ -489,7 +534,7 @@ function AccountSettingsModal({ isOpen, user, onClose, onUpdate, onViewChange }:
                           className="w-full h-full"
                         >
                           {avatar ? (
-                            <img src={avatar} className="w-full h-full object-cover" />
+                            <img src={avatar} className="w-full h-full aspect-square shrink-0 object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-primary">
                               {user?.name?.charAt(0)?.toUpperCase()}

@@ -39,7 +39,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       },
       include: {
         author: {
-          select: { id: true, name: true, role: true }
+          select: { id: true, name: true, role: true, avatar: true }
         }
       }
     });

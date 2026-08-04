@@ -121,6 +121,7 @@ export async function POST(request: Request) {
                 recommendation: analysis.recommendation,
                 indicators: analysis.indicators,
                 imageName: image?.name || null,
+                imageUrl: image ? `data:${image.mimeType};base64,${image.data}` : null,
               }
             });
           }
