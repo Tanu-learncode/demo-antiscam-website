@@ -123,30 +123,48 @@ export function StatsView() {
   
   const [history, setHistory] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
+  const [stats, setStats] = useState<{totalUsers: number, totalReports: number}>({ totalUsers: 0, totalReports: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/history?limit=500').then(r => r.json()).catch(() => ({ items: [] })),
-      fetch('/api/posts?status=APPROVED').then(r => r.json()).catch(() => ({ posts: [] }))
-    ]).then(([histData, postData]) => {
-      setHistory(histData.items || []);
+      fetch('/api/posts?status=APPROVED').then(r => r.json()).catch(() => ({ posts: [] })),
+      fetch('/api/stats').then(r => r.json()).catch(() => ({ totalUsers: 0, totalReports: 0, globalAnalyses: [] }))
+    ]).then(([postData, statsData]) => {
+      setHistory(statsData.globalAnalyses || []);
       setPosts(postData.posts || []);
+      setStats({
+        totalUsers: statsData.totalUsers || 0,
+        totalReports: statsData.totalReports || 0
+      });
       setLoading(false);
     });
   }, []);
 
   // Tính toán số liệu Tổng quan
-  const totalAnalyses = history.length + 15420; // Cộng thêm số nền để demo đẹp
-  const totalPosts = posts.length + 285;
-  const totalUsers = 12500; // Giả lập
-  const totalReports = 8430; // Giả lập
+  const totalAnalyses = history.length;
+  const totalPosts = posts.length;
+  const totalUsers = stats.totalUsers;
+  const totalReports = stats.totalReports;
 
-  // Dữ liệu Chart 7 ngày (Giả lập trend dựa trên dữ liệu thật)
+  // Dữ liệu Chart 7 ngày (Dựa trên dữ liệu thật)
   const last7Days = Array.from({length: 7}, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
     return d.toLocaleDateString('vi-VN', { weekday: 'short' });
+  });
+
+  const last7DaysData = Array.from({length: 7}, (_, i) => {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() - (6 - i));
+    const nextDay = new Date(d);
+    nextDay.setDate(d.getDate() + 1);
+    return history.filter(h => {
+      if (!h.createdAt) return false;
+      const hDate = new Date(h.createdAt);
+      return hDate >= d && hDate < nextDay;
+    }).length;
   });
 
   const overviewLineData = {
@@ -154,7 +172,7 @@ export function StatsView() {
     datasets: [
       {
         label: 'Lượt phân tích AI',
-        data: [1200, 1900, 1500, 2200, 1800, 2500, 2900],
+        data: last7DaysData,
         borderColor: '#4dabf7',
         backgroundColor: 'rgba(77, 171, 247, 0.1)',
         tension: 0.4,
@@ -163,12 +181,19 @@ export function StatsView() {
     ]
   };
 
-  // Tính toán AI Analytics
-  const safeCount = history.filter(h => h.riskLevel === 'LOW').length + 8000;
-  const warningCount = history.filter(h => h.riskLevel === 'MEDIUM').length + 4000;
-  const dangerCount = history.filter(h => h.riskLevel === 'HIGH').length + 3420;
+  const safeCount = history.filter(h => h.riskLevel?.toUpperCase() === 'LOW').length;
+  const warningCount = history.filter(h => h.riskLevel?.toUpperCase() === 'MEDIUM').length;
+  const dangerCount = history.filter(h => h.riskLevel?.toUpperCase() === 'HIGH').length;
+  const totalRiskCount = safeCount + warningCount + dangerCount;
 
-  const aiPieData = {
+  const aiPieData = totalRiskCount === 0 ? {
+    labels: ['Chưa có dữ liệu'],
+    datasets: [{
+      data: [1],
+      backgroundColor: ['#374151'],
+      borderWidth: 0,
+    }]
+  } : {
     labels: ['An toàn', 'Cảnh báo', 'Nguy hiểm'],
     datasets: [{
       data: [safeCount, warningCount, dangerCount],
@@ -307,7 +332,7 @@ export function StatsView() {
                     <div className="flex-1 min-h-0 flex items-center justify-center relative">
                       <Doughnut data={aiPieData} options={{ responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }} />
                       <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none pb-8">
-                        <span className="text-3xl font-bold text-on-surface"><CountUpText value={15420} /></span>
+                        <span className="text-3xl font-bold text-on-surface"><CountUpText value={totalAnalyses} /></span>
                         <span className="text-xs text-on-surface-variant">Tổng quét</span>
                       </div>
                     </div>

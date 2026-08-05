@@ -3,9 +3,9 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { CreatePostModal } from '../components/ui/CreatePostModal';
 import { ConfirmDeleteModal } from '../components/ui/ConfirmDeleteModal';
 import { Toast } from '../components/ui/Toast';
-import { CheckCircle, XCircle, Clock, List, Edit2, Trash2, Eye, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, List, Edit2, Trash2, Eye, RefreshCw, ArrowLeft } from 'lucide-react';
 
-export function MyPostsView({ onViewDetail }: { onViewDetail?: (id: string) => void }) {
+export function MyPostsView({ onViewDetail, onBack }: { onViewDetail?: (id: string) => void, onBack?: () => void }) {
   const [user, setUser] = useState<{ id: string } | null>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,14 +103,25 @@ export function MyPostsView({ onViewDetail }: { onViewDetail?: (id: string) => v
 
   return (
     <div className="pt-24 px-6 pb-20 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex items-center gap-4 mb-6">
+        {onBack && (
+          <button 
+            onClick={onBack}
+            className="p-2 bg-surface-container-highest hover:bg-primary/20 text-on-surface hover:text-primary rounded-full transition-colors"
+            title="Quay lại"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+        )}
         <h1 className="text-3xl font-bold text-primary">Bài viết của tôi</h1>
-        <button 
-          onClick={() => { setEditPost(null); setIsModalOpen(true); }}
-          className="px-4 py-2 bg-primary text-on-primary font-bold rounded-full hover:brightness-110 transition-all"
-        >
-          + Đăng bài mới
-        </button>
+        <div className="ml-auto">
+          <button 
+            onClick={() => { setEditPost(null); setIsModalOpen(true); }}
+            className="px-4 py-2 bg-primary text-on-primary font-bold rounded-full hover:brightness-110 transition-all whitespace-nowrap"
+          >
+            + Đăng bài mới
+          </button>
+        </div>
       </div>
       
       {/* Tabs */}

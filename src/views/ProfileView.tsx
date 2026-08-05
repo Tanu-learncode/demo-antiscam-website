@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { GlassCard } from '../components/ui/GlassCard';
 import { AnalysisHistoryModal, type AnalysisItem } from '../components/ui/AnalysisHistoryModal';
+import { Toast } from '../components/ui/Toast';
 import { createPortal } from 'react-dom';
 import { ShieldCheck, AlertTriangle, User, Settings, LogOut, Camera, Trash2, X, Activity } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'motion/react';
@@ -60,6 +61,11 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error', isVisible: boolean }>({ message: '', type: 'success', isVisible: false });
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type, isVisible: true });
+  };
 
   const fetchData = async () => {
     if (profileCache && (Date.now() - profileCache.timestamp < 1000 * 60 * 5)) {
@@ -146,6 +152,7 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
         onClose={() => setIsSettingsOpen(false)} 
         onUpdate={fetchData} 
         onViewChange={onViewChange}
+        showToast={showToast}
       />
 
       <motion.div 
@@ -382,12 +389,19 @@ export function ProfileView({ onViewChange }: { onViewChange?: (view: ViewType) 
           </GlassCard>
         </motion.div>
       </motion.div>
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast({ ...toast, isVisible: false })}
+      />
     </div>
   );
 }
 
 // --- ACCOUNT SETTINGS MODAL ---
-function AccountSettingsModal({ isOpen, user, onClose, onUpdate, onViewChange }: { isOpen: boolean, user: any, onClose: () => void, onUpdate: () => void, onViewChange?: (v: ViewType) => void }) {
+function AccountSettingsModal({ isOpen, user, onClose, onUpdate, onViewChange, showToast }: { isOpen: boolean, user: any, onClose: () => void, onUpdate: () => void, onViewChange?: (v: ViewType) => void, showToast: (msg: string, type: 'success'|'error') => void }) {
   const [name, setName] = useState(user?.name || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -416,6 +430,16 @@ function AccountSettingsModal({ isOpen, user, onClose, onUpdate, onViewChange }:
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (newPassword && newPassword.length < 8) {
+      showToast("Mật khẩu mới phải có ít nhất 8 ký tự.", "error");
+      return;
+    }
+    if (newPassword && !currentPassword) {
+      showToast("Vui lòng nhập mật khẩu cũ để thay đổi mật khẩu.", "error");
+      return;
+    }
+
     setLoading(true);
     try {
       const payload: any = { name, avatar };
@@ -429,19 +453,28 @@ function AccountSettingsModal({ isOpen, user, onClose, onUpdate, onViewChange }:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        throw new Error("Lỗi phản hồi từ máy chủ. Kích thước ảnh có thể quá lớn.");
+      }
+
       if (data.ok) {
-        // No alert, just seamless close
+        showToast("Cập nhật thông tin thành công!", "success");
         window.dispatchEvent(new CustomEvent('user-updated', { 
           detail: { userId: user?.id, avatar: payload.avatar } 
         }));
         onUpdate();
         onClose();
+        setCurrentPassword('');
+        setNewPassword('');
       } else {
-        alert(data.message || "Có lỗi xảy ra");
+        showToast(data.message || "Có lỗi xảy ra", "error");
       }
-    } catch (err) {
-      alert("Lỗi kết nối");
+    } catch (err: any) {
+      showToast(err.message || "Lỗi kết nối", "error");
     } finally {
       setLoading(false);
     }
@@ -460,7 +493,7 @@ function AccountSettingsModal({ isOpen, user, onClose, onUpdate, onViewChange }:
         window.location.reload();
       }
     } catch (e) {
-      alert("Có lỗi xảy ra khi xoá.");
+      showToast("Có lỗi xảy ra khi xoá.", "error");
       setLoading(false);
     }
   };

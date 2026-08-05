@@ -169,7 +169,9 @@ export function KnowledgeView({ onViewDetail }: { onViewDetail?: (id: string) =>
         className="relative mb-8 py-8 text-center max-w-3xl mx-auto"
       >
         <h1 className="text-3xl md:text-4xl font-bold mb-4 text-glow-primary">Kho kiến thức</h1>
-        <p className="text-on-surface-variant text-lg mb-8">Khám phá kiến thức, chia sẻ kinh nghiệm và cập nhật các cảnh báo mới nhất về lừa đảo trực tuyến.</p>
+        <p className="text-on-surface-variant text-base md:text-lg leading-relaxed max-w-2xl mx-auto mb-8">
+          Khám phá kiến thức, chia sẻ kinh nghiệm <br className="hidden sm:block" /> và cập nhật cảnh báo lừa đảo trực tuyến mới nhất.
+        </p>
         
         <form onSubmit={handleSearchSubmit} className="w-full relative max-w-2xl mx-auto">
           {isSearching ? (

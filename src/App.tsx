@@ -51,7 +51,7 @@ export default function App() {
       case 'profile':
         return <ProfileView onViewChange={handleViewChange} />;
       case 'my_posts':
-        return <MyPostsView onViewDetail={(id) => handleViewChange('post_detail', id)} />;
+        return <MyPostsView onViewDetail={(id) => handleViewChange('post_detail', id)} onBack={() => handleViewChange('profile')} />;
       case 'admin_dashboard':
       case 'admin_articles':
         return <AdminDashboardView />;
