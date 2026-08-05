@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { GlassCard } from '../components/ui/GlassCard';
 import { CreatePostModal } from '../components/ui/CreatePostModal';
+import { ConfirmDeleteModal } from '../components/ui/ConfirmDeleteModal';
+import { Toast } from '../components/ui/Toast';
 import { CheckCircle, XCircle, Clock, List, Edit2, Trash2, Eye, RefreshCw } from 'lucide-react';
 
 export function MyPostsView({ onViewDetail }: { onViewDetail?: (id: string) => void }) {
@@ -10,6 +12,18 @@ export function MyPostsView({ onViewDetail }: { onViewDetail?: (id: string) => v
   const [activeTab, setActiveTab] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   const [editPost, setEditPost] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Delete Modal State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Toast State
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error', isVisible: boolean }>({ 
+    message: '', 
+    type: 'success', 
+    isVisible: false 
+  });
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -36,18 +50,28 @@ export function MyPostsView({ onViewDetail }: { onViewDetail?: (id: string) => v
       .catch(() => setLoading(false));
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xoá bài viết này không? Bài viết và hình ảnh liên quan sẽ bị xoá vĩnh viễn.')) return;
+  const handleDeleteClick = (id: string) => {
+    setPostToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!postToDelete) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/posts/${postToDelete}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.ok) {
-        setPosts(posts.filter(p => p.id !== id));
+        setPosts(posts.filter(p => p.id !== postToDelete));
+        setToast({ message: 'Đã xóa bài viết thành công.', type: 'success', isVisible: true });
+        setDeleteModalOpen(false);
       } else {
-        alert(data.message || 'Xoá thất bại');
+        setToast({ message: data.message || 'Xóa bài viết thất bại.', type: 'error', isVisible: true });
       }
     } catch (e) {
-      alert('Đã có lỗi xảy ra');
+      setToast({ message: 'Đã có lỗi xảy ra', type: 'error', isVisible: true });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -154,7 +178,7 @@ export function MyPostsView({ onViewDetail }: { onViewDetail?: (id: string) => v
                     {post.status === 'REJECTED' ? <><RefreshCw className="w-4 h-4" /> Gửi lại</> : <><Edit2 className="w-4 h-4" /> Sửa</>}
                   </button>
                   <button 
-                    onClick={() => handleDelete(post.id)}
+                    onClick={() => handleDeleteClick(post.id)}
                     className="w-full flex justify-center items-center gap-2 px-4 py-2 bg-error/10 hover:bg-error/20 text-error font-semibold rounded-lg transition-colors"
                   >
                     <Trash2 className="w-4 h-4" /> Xoá
@@ -170,6 +194,20 @@ export function MyPostsView({ onViewDetail }: { onViewDetail?: (id: string) => v
         isOpen={isModalOpen} 
         onClose={handleModalClose} 
         editPost={editPost} 
+      />
+
+      <ConfirmDeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast({ ...toast, isVisible: false })}
       />
     </div>
   );
