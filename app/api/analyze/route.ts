@@ -65,18 +65,10 @@ export async function POST(request: Request) {
     const client = getGeminiClient();
 
     if (!client) {
-      return NextResponse.json({
-        ok: true,
-        mode: 'fallback',
-        analysis: {
-          riskLevel: 'medium',
-          confidence: 50,
-          summary: 'Server-side Gemini route is ready. Configure GEMINI_API_KEY to enable live AI analysis.',
-          recommendation: 'Treat the content with caution until live analysis is enabled.',
-          indicators: ['Missing GEMINI_API_KEY'],
-          detectedType,
-        },
-      });
+      return NextResponse.json(
+        { ok: false, message: 'Server is missing GEMINI_API_KEY configuration.' },
+        { status: 500 }
+      );
     }
 
     const prompt = buildPrompt(content, detectedType);
