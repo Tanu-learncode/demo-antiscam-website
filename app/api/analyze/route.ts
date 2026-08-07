@@ -71,6 +71,46 @@ export async function POST(request: Request) {
       );
     }
 
+    // Authentication & Rate Limiting Check
+    const cookieHeader = request.headers.get('cookie');
+    const cookies = cookieHeader ? parseCookie(cookieHeader) : {};
+    const token = cookies[COOKIE_NAME];
+    
+    if (!token) {
+      return NextResponse.json({ ok: false, message: 'Vui lòng đăng nhập để sử dụng tính năng này.' }, { status: 401 });
+    }
+
+    const payload = verifyToken(token);
+    if (!payload || !payload.userId) {
+      return NextResponse.json({ ok: false, message: 'Phiên đăng nhập không hợp lệ.' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+    if (!user) {
+      return NextResponse.json({ ok: false, message: 'Tài khoản không tồn tại.' }, { status: 401 });
+    }
+
+    if (user.role !== 'ADMIN') {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const count = await prisma.analysis.count({
+        where: {
+          userId: user.id,
+          createdAt: {
+            gte: startOfDay,
+          }
+        }
+      });
+
+      if (count >= 5) {
+        return NextResponse.json({
+          ok: false,
+          message: 'Bạn đã đạt giới hạn 5 lần kiểm tra trong ngày. Vui lòng quay lại vào ngày mai!',
+        }, { status: 429 });
+      }
+    }
+
     const prompt = buildPrompt(content, detectedType);
     
     // Support multimodal by passing an array of parts
@@ -93,40 +133,42 @@ export async function POST(request: Request) {
     const text = typeof response?.text === 'string' ? response.text : '';
     const analysis = parseGeminiJson(text || '{}');
 
-    // Attempt to save to database if user is logged in
+    // Save to database
     try {
-      const cookieHeader = request.headers.get('cookie');
-      if (cookieHeader) {
-        const cookies = parseCookie(cookieHeader);
-        const token = cookies[COOKIE_NAME];
-        if (token) {
-          const payload = verifyToken(token);
-          if (payload && payload.userId) {
-            await prisma.analysis.create({
-              data: {
-                userId: payload.userId,
-                content: content || 'IMAGE_ANALYSIS',
-                detectedType: analysis.detectedType || detectedType,
-                riskLevel: analysis.riskLevel,
-                confidence: analysis.confidence,
-                summary: analysis.summary,
-                recommendation: analysis.recommendation,
-                indicators: analysis.indicators,
-                imageName: image?.name || null,
-                imageUrl: image ? `data:${image.mimeType};base64,${image.data}` : null,
-              }
-            });
-          }
+      await prisma.analysis.create({
+        data: {
+          userId: user.id,
+          content: content || 'IMAGE_ANALYSIS',
+          detectedType: analysis.detectedType || detectedType,
+          riskLevel: analysis.riskLevel,
+          confidence: analysis.confidence,
+          summary: analysis.summary,
+          recommendation: analysis.recommendation,
+          indicators: analysis.indicators,
+          imageName: image?.name || null,
+          imageUrl: image ? `data:${image.mimeType};base64,${image.data}` : null,
         }
-      }
+      });
     } catch (saveError) {
       console.error('Error saving analysis history:', saveError);
       // Continue anyway, don't fail the analysis request
     }
 
     return NextResponse.json({ ok: true, mode: 'gemini', analysis });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Analyze route error:', error);
+    
+    const errorMessage = error?.message || '';
+    if (errorMessage.includes('429') || errorMessage.includes('Quota exceeded') || error?.status === 429) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: 'Hệ thống phân tích AI hiện đang quá tải hoặc hết lượt sử dụng. Vui lòng thử lại sau ít phút.',
+        },
+        { status: 429 },
+      );
+    }
+
     return NextResponse.json(
       {
         ok: false,

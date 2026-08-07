@@ -2,14 +2,17 @@ import { ArrowRight, Bookmark, PlayCircle, Search, PlusCircle, Users, BookOpen, 
 import React, { useState, useEffect } from 'react';
 import { GlassCard } from '../components/ui/GlassCard';
 import { CreatePostModal } from '../components/ui/CreatePostModal';
+import { LoginPromptModal } from '../components/ui/LoginPromptModal';
 import { motion, AnimatePresence } from 'motion/react';
 
-export function KnowledgeView({ onViewDetail }: { onViewDetail?: (id: string) => void }) {
+export function KnowledgeView({ onViewDetail, onViewChange }: { onViewDetail?: (id: string) => void, onViewChange?: (view: any) => void }) {
   const [activeTab, setActiveTab] = useState<'knowledge' | 'community'>('knowledge');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [knowledgePosts, setKnowledgePosts] = useState<any[]>([]);
   const [communityPosts, setCommunityPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -32,6 +35,16 @@ export function KnowledgeView({ onViewDetail }: { onViewDetail?: (id: string) =>
         console.error(err);
         setLoading(false);
       });
+
+    let mounted = true;
+    fetch('/api/auth/me', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (mounted && data.user) setCurrentUser(data.user);
+      })
+      .catch(() => {});
+
+    return () => { mounted = false; };
   }, []);
 
   useEffect(() => {
@@ -64,6 +77,14 @@ export function KnowledgeView({ onViewDetail }: { onViewDetail?: (id: string) =>
     if (e) e.preventDefault();
     setDebouncedQuery(searchQuery);
     setIsSearching(false);
+  };
+
+  const handleOpenCreatePost = async () => {
+    if (!currentUser) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    setIsModalOpen(true);
   };
 
   const filterPosts = (posts: any[]) => {
@@ -225,7 +246,7 @@ export function KnowledgeView({ onViewDetail }: { onViewDetail?: (id: string) =>
           variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
           whileHover={{ scale: 1.03 }}
           transition={{ duration: 0.25 }}
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenCreatePost}
           className="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary font-bold rounded-full hover:brightness-110 active:scale-95 transition-colors"
         >
           <PlusCircle className="w-5 h-5" />
@@ -281,7 +302,7 @@ export function KnowledgeView({ onViewDetail }: { onViewDetail?: (id: string) =>
                     <motion.button 
                       whileHover={{ scale: 1.03 }}
                       transition={{ duration: 0.25 }}
-                      onClick={() => setIsModalOpen(true)}
+                      onClick={handleOpenCreatePost}
                       className="px-6 py-2 bg-primary/20 text-primary font-bold rounded-full hover:bg-primary/30 transition-colors"
                     >
                       Chia sẻ ngay
@@ -305,6 +326,13 @@ export function KnowledgeView({ onViewDetail }: { onViewDetail?: (id: string) =>
       )}
 
       <CreatePostModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+      <LoginPromptModal 
+        isOpen={showLoginPrompt} 
+        onClose={() => setShowLoginPrompt(false)} 
+        onConfirm={() => { if (onViewChange) onViewChange('login'); }}
+        message="Vui lòng đăng nhập để chia sẻ bài viết cùng cộng đồng."
+      />
     </div>
   );
 }

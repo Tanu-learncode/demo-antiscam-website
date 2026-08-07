@@ -54,7 +54,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const cookieHeader = request.headers.get('cookie');
     const token = parseCookie(cookieHeader)[COOKIE_NAME];
-    if (!token) return NextResponse.json({ ok: false, message: 'Unauthorized' }, { status: 401 });
+    if (!token) return NextResponse.json({ ok: false, message: 'Vui lòng đăng nhập để thực hiện chức năng này' }, { status: 401 });
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     const authorId = decoded.userId;
@@ -97,7 +97,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   try {
     const cookieHeader = request.headers.get('cookie');
     const token = parseCookie(cookieHeader)[COOKIE_NAME];
-    if (!token) return NextResponse.json({ ok: false, message: 'Unauthorized' }, { status: 401 });
+    if (!token) return NextResponse.json({ ok: false, message: 'Vui lòng đăng nhập để thực hiện chức năng này' }, { status: 401 });
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     const authorId = decoded.userId;

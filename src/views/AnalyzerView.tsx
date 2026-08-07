@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { GlassCard } from '../components/ui/GlassCard';
 import { AnalysisHistoryModal, type AnalysisItem } from '../components/ui/AnalysisHistoryModal';
+import { LoginPromptModal } from '../components/ui/LoginPromptModal';
 
-export function AnalyzerView() {
+export function AnalyzerView({ onViewChange }: { onViewChange?: (view: any) => void }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [content, setContent] = useState('');
@@ -15,7 +16,20 @@ export function AnalyzerView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [historyItems, setHistoryItems] = useState<AnalysisItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    let mounted = true;
+    fetch('/api/auth/me', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (mounted && data.user) setCurrentUser(data.user);
+      })
+      .catch(() => {});
+    return () => { mounted = false; };
+  }, []);
 
   const handleOpenHistory = async () => {
     setIsModalOpen(true);
@@ -55,6 +69,11 @@ export function AnalyzerView() {
 
   const handleAnalyze = async () => {
     if (!content.trim() && !selectedImage) return;
+
+    if (!currentUser) {
+      setShowLoginPrompt(true);
+      return;
+    }
     
     setIsAnalyzing(true);
     setLoadingStep(0);
@@ -459,6 +478,13 @@ export function AnalyzerView() {
           ))}
         </div>
       </section>
+
+      <LoginPromptModal 
+        isOpen={showLoginPrompt} 
+        onClose={() => setShowLoginPrompt(false)} 
+        onConfirm={() => { if (onViewChange) onViewChange('login'); }}
+        message="Vui lòng đăng nhập để sử dụng tính năng Kiểm tra AI."
+      />
     </div>
   );
 }

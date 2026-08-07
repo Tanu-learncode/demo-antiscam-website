@@ -37,9 +37,9 @@ export default function App() {
       case 'home':
         return <HomeView onViewChange={handleViewChange} />;
       case 'analyzer':
-        return <AnalyzerView />;
+        return <AnalyzerView onViewChange={handleViewChange} />;
       case 'knowledge':
-        return <KnowledgeView onViewDetail={(id) => handleViewChange('post_detail', id)} />;
+        return <KnowledgeView onViewDetail={(id) => handleViewChange('post_detail', id)} onViewChange={handleViewChange} />;
       case 'post_detail':
         return <PostDetailView postId={selectedPostId} onBack={handleViewChange} />;
       case 'stats':

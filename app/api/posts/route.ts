@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const token = parseCookie(cookieHeader)[COOKIE_NAME];
     
     if (!token) {
-      return NextResponse.json({ ok: false, message: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ ok: false, message: 'Vui lòng đăng nhập để thực hiện chức năng này' }, { status: 401 });
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
