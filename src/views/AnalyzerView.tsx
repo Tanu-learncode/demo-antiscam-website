@@ -70,7 +70,19 @@ export function AnalyzerView({ onViewChange }: { onViewChange?: (view: any) => v
   const handleAnalyze = async () => {
     if (!content.trim() && !selectedImage) return;
 
-    if (!currentUser) {
+    let user = currentUser;
+    if (!user) {
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.user) {
+          user = data.user;
+          setCurrentUser(user);
+        }
+      } catch (e) {}
+    }
+    
+    if (!user) {
       setShowLoginPrompt(true);
       return;
     }
@@ -115,6 +127,7 @@ export function AnalyzerView({ onViewChange }: { onViewChange?: (view: any) => v
       setIsAnalyzing(false);
     }
   };
+
 
   return (
     <div className="pt-24 pb-20 px-6 max-w-7xl mx-auto space-y-16">

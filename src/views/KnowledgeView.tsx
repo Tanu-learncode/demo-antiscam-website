@@ -80,7 +80,19 @@ export function KnowledgeView({ onViewDetail, onViewChange }: { onViewDetail?: (
   };
 
   const handleOpenCreatePost = async () => {
-    if (!currentUser) {
+    let user = currentUser;
+    if (!user) {
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.user) {
+          user = data.user;
+          setCurrentUser(user);
+        }
+      } catch (e) {}
+    }
+    
+    if (!user) {
       setShowLoginPrompt(true);
       return;
     }
