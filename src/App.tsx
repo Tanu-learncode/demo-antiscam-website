@@ -18,12 +18,14 @@ import { StatsView } from './views/StatsView';
 import { AdminDashboardView } from './views/AdminDashboardView';
 import { MyPostsView } from './views/MyPostsView';
 import { PostDetailView } from './views/PostDetailView';
+import { SplashScreen } from './components/ui/SplashScreen';
 
 // ViewType imported from src/types.ts
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [splashPhase, setSplashPhase] = useState<'intro' | 'expand' | 'done'>('intro');
 
   const handleViewChange = (view: ViewType, postId?: string) => {
     setCurrentView(view);
@@ -61,12 +63,23 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans selection:bg-primary/30">
-      <Header currentView={currentView} onViewChange={setCurrentView} />
-      <main className="flex-1 pt-16">{/* Reserve nav height */}
-        {renderView()}
-      </main>
-      <Footer />
-    </div>
+    <>
+      {splashPhase !== 'done' && (
+        <SplashScreen 
+          onExpand={() => setSplashPhase('expand')}
+          onComplete={() => setSplashPhase('done')} 
+        />
+      )}
+      <div 
+        key={splashPhase} 
+        className={`min-h-screen flex flex-col font-sans selection:bg-primary/30 ${splashPhase === 'intro' ? 'opacity-0 pointer-events-none fixed inset-0' : 'opacity-100'}`}
+      >
+        <Header currentView={currentView} onViewChange={setCurrentView} />
+        <main className="flex-1 pt-16">{/* Reserve nav height */}
+          {renderView()}
+        </main>
+        <Footer />
+      </div>
+    </>
   );
 }

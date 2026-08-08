@@ -66,7 +66,12 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm">
+    <motion.nav 
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm"
+    >
       <div className="flex justify-between items-center h-16 px-6 max-w-7xl mx-auto">
         <div 
           className="flex items-center gap-2 cursor-pointer"
@@ -240,6 +245,6 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
           </div>
         )}
       </AnimatePresence>
-    </nav>
+    </motion.nav>
   );
 }
