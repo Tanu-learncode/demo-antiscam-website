@@ -7,9 +7,10 @@ import { ViewType } from '../../types';
 interface HeaderProps {
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
+  onAuthTransition?: (mode: 'login' | 'register', x: number, y: number) => void;
 }
 
-export function Header({ currentView, onViewChange }: HeaderProps) {
+export function Header({ currentView, onViewChange, onAuthTransition }: HeaderProps) {
   const [user, setUser] = useState<{ id: string; name: string; email: string; role?: string; avatar?: string } | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -60,8 +61,15 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
     setIsMobileMenuOpen(false);
   };
 
-  const handleNavClick = (id: ViewType) => {
-    onViewChange(id);
+  const handleNavClick = (id: ViewType, e?: React.MouseEvent) => {
+    if ((id === 'login' || id === 'register') && onAuthTransition && e) {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      onAuthTransition(id, x, y);
+    } else {
+      onViewChange(id);
+    }
     setIsMobileMenuOpen(false);
   };
 
@@ -103,13 +111,13 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
             {!user ? (
               <>
                 <button
-                  onClick={() => handleNavClick('login')}
+                  onClick={(e) => handleNavClick('login', e)}
                   className="px-4 py-2 text-sm text-on-surface-variant hover:text-primary transition-colors font-medium"
                 >
                   Đăng nhập
                 </button>
                 <button
-                  onClick={() => handleNavClick('register')}
+                  onClick={(e) => handleNavClick('register', e)}
                   className="px-6 py-2 bg-primary-container text-on-primary-container rounded-lg text-sm font-bold hover:brightness-110 transition-all active:scale-95"
                 >
                   Đăng ký

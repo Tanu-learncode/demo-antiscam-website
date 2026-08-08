@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Lock, User, ArrowLeft, Eye, EyeOff, Check, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft, Eye, EyeOff, Check, AlertCircle, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 type AuthMode = 'login' | 'register';
@@ -104,7 +104,12 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
       <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#143075]/30 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #F3F6FF 1px, transparent 0)', backgroundSize: '48px 48px' }}></div>
 
-      <div className="relative w-full max-w-[900px] min-h-[600px] bg-[#141B2D]/80 backdrop-blur-[18px] border border-white/[0.08] rounded-[32px] shadow-[0_0_40px_rgba(91,140,255,0.05)] overflow-hidden flex flex-col md:block">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="relative w-full max-w-[900px] min-h-[600px] bg-[#141B2D]/80 backdrop-blur-[18px] border border-white/[0.08] rounded-[32px] shadow-[0_0_40px_rgba(91,140,255,0.05)] overflow-hidden flex flex-col md:block"
+      >
         
         {/* Back Button */}
         <button
@@ -124,10 +129,13 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
           `}
         >
           <form onSubmit={handleLogin} className="flex flex-col items-center justify-center h-full w-full pt-12 md:pt-0">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-[#F3F6FF] mb-2 tracking-tight">Đăng nhập</h1>
-            <p className="text-[#AAB7D8] text-sm mb-10 text-center">Truy cập hệ thống bảo mật AntiScam</p>
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
+              <Shield className="w-12 h-12 text-[#7DA8FF] mb-3 mx-auto drop-shadow-[0_0_10px_rgba(125,168,255,0.3)]" />
+            </motion.div>
+            <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="text-3xl md:text-4xl font-extrabold text-[#F3F6FF] mb-2 tracking-tight">Đăng nhập</motion.h1>
+            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-[#AAB7D8] text-sm mb-8 text-center">Truy cập hệ thống bảo mật AntiScam</motion.p>
             
-            <div className="w-full space-y-5 mb-8">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }} className="w-full space-y-5 mb-8">
               <div className="relative w-full group">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[#8FB4FF] opacity-70 group-focus-within:opacity-100 group-focus-within:text-[#7DA8FF] transition-all">
                   <Mail size={20} />
@@ -162,7 +170,7 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
                   {showLoginPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-            </div>
+            </motion.div>
 
             {loginMessage && (
               <div className="w-full rounded-2xl border border-[#7DA8FF]/30 bg-[#7DA8FF]/10 px-4 py-3 text-sm text-[#7DA8FF] mb-6 text-center backdrop-blur-sm">
@@ -170,21 +178,22 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
               </div>
             )}
 
-            <button
+            <motion.button
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }}
               type="submit"
               disabled={loginLoading}
               className="w-full rounded-2xl bg-gradient-to-r from-[#7DA8FF] to-[#5B8CFF] px-5 py-4 text-sm font-bold text-[#0B1020] transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_0_20px_rgba(125,168,255,0.4)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
             >
               {loginLoading ? 'ĐANG XỬ LÝ...' : 'ĐĂNG NHẬP'}
-            </button>
+            </motion.button>
 
             {/* Mobile Toggle */}
-            <div className="mt-8 text-sm text-[#AAB7D8] md:hidden">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.7 }} className="mt-8 text-sm text-[#AAB7D8] md:hidden">
               Chưa có tài khoản?{' '}
               <button type="button" onClick={() => onModeChange('register')} className="text-[#8FB4FF] font-bold hover:text-[#7DA8FF] transition-colors">
                 Đăng ký ngay
               </button>
-            </div>
+            </motion.div>
           </form>
         </div>
 
@@ -197,10 +206,13 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
           `}
         >
           <form onSubmit={handleRegister} className="flex flex-col items-center justify-center h-full w-full pt-12 md:pt-0">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-[#F3F6FF] mb-2 tracking-tight">Tạo tài khoản</h1>
-            <p className="text-[#AAB7D8] text-sm mb-6 text-center">Bảo vệ bạn khỏi lừa đảo trực tuyến</p>
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
+              <Shield className="w-12 h-12 text-[#7DA8FF] mb-3 mx-auto drop-shadow-[0_0_10px_rgba(125,168,255,0.3)]" />
+            </motion.div>
+            <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="text-3xl md:text-4xl font-extrabold text-[#F3F6FF] mb-2 tracking-tight">Tạo tài khoản</motion.h1>
+            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-[#AAB7D8] text-sm mb-6 text-center">Bảo vệ bạn khỏi lừa đảo trực tuyến</motion.p>
             
-            <div className="w-full space-y-4 mb-6">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }} className="w-full space-y-4 mb-6">
               <div className="relative w-full group">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[#8FB4FF] opacity-70 group-focus-within:opacity-100 group-focus-within:text-[#7DA8FF] transition-all">
                   <User size={20} />
@@ -215,18 +227,21 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
                 />
               </div>
 
-              <div className="relative w-full group">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[#8FB4FF] opacity-70 group-focus-within:opacity-100 group-focus-within:text-[#7DA8FF] transition-all">
-                  <Mail size={20} />
+              <div>
+                <div className="relative w-full group">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[#8FB4FF] opacity-70 group-focus-within:opacity-100 group-focus-within:text-[#7DA8FF] transition-all">
+                    <Mail size={20} />
+                  </div>
+                  <input
+                    value={registerEmail}
+                    onChange={(e) => setRegisterEmail(e.target.value)}
+                    type="email"
+                    placeholder="Email"
+                    className="w-full bg-[#0B1020]/50 text-[#F3F6FF] placeholder-[#AAB7D8]/50 border border-white/[0.08] rounded-2xl py-3 pl-12 pr-4 outline-none transition-all duration-300 focus:border-[#7DA8FF] focus:bg-[#0B1020]/80 focus:shadow-[0_0_15px_rgba(125,168,255,0.15)]"
+                    required
+                  />
                 </div>
-                <input
-                  value={registerEmail}
-                  onChange={(e) => setRegisterEmail(e.target.value)}
-                  type="email"
-                  placeholder="Email"
-                  className="w-full bg-[#0B1020]/50 text-[#F3F6FF] placeholder-[#AAB7D8]/50 border border-white/[0.08] rounded-2xl py-3 pl-12 pr-4 outline-none transition-all duration-300 focus:border-[#7DA8FF] focus:bg-[#0B1020]/80 focus:shadow-[0_0_15px_rgba(125,168,255,0.15)]"
-                  required
-                />
+                <p className="text-[#AAB7D8]/60 text-[12px] mt-1.5 ml-2 italic">Lưu ý: Bạn có thể sử dụng email ảo để trải nghiệm các tính năng của website.</p>
               </div>
 
               <div>
@@ -340,7 +355,7 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
                   )}
                 </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
 
             {registerMessage && (
               <div className="w-full rounded-2xl border border-[#7DA8FF]/30 bg-[#7DA8FF]/10 px-4 py-3 text-sm text-[#7DA8FF] mb-6 text-center backdrop-blur-sm">
@@ -348,21 +363,22 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
               </div>
             )}
 
-            <button
+            <motion.button
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }}
               type="submit"
               disabled={registerLoading || !canSubmitRegister}
               className="w-full rounded-2xl bg-gradient-to-r from-[#7DA8FF] to-[#5B8CFF] px-5 py-4 text-sm font-bold text-[#0B1020] transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_0_20px_rgba(125,168,255,0.4)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
             >
               {registerLoading ? 'ĐANG XỬ LÝ...' : 'ĐĂNG KÝ'}
-            </button>
+            </motion.button>
 
             {/* Mobile Toggle */}
-            <div className="mt-8 text-sm text-[#AAB7D8] md:hidden">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.7 }} className="mt-8 text-sm text-[#AAB7D8] md:hidden">
               Đã có tài khoản?{' '}
               <button type="button" onClick={() => onModeChange('login')} className="text-[#8FB4FF] font-bold hover:text-[#7DA8FF] transition-colors">
                 Đăng nhập
               </button>
-            </div>
+            </motion.div>
           </form>
         </div>
 
@@ -419,7 +435,7 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
           </div>
         </div>
 
-      </div>
+      </motion.div>
     </section>
   );
 }

@@ -19,6 +19,7 @@ import { AdminDashboardView } from './views/AdminDashboardView';
 import { MyPostsView } from './views/MyPostsView';
 import { PostDetailView } from './views/PostDetailView';
 import { SplashScreen } from './components/ui/SplashScreen';
+import { motion, AnimatePresence } from 'motion/react';
 
 // ViewType imported from src/types.ts
 
@@ -26,6 +27,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [splashPhase, setSplashPhase] = useState<'intro' | 'expand' | 'done'>('intro');
+  const [authTransition, setAuthTransition] = useState<{ mode: 'login' | 'register', x: number, y: number } | null>(null);
 
   // Scroll to top when view changes
   useEffect(() => {
@@ -71,6 +73,23 @@ export default function App() {
 
   return (
     <>
+      <AnimatePresence>
+        {authTransition && (
+          <motion.div
+            initial={{ 
+              clipPath: `circle(0px at ${authTransition.x}px ${authTransition.y}px)`,
+              backgroundColor: '#0B1020'
+            }}
+            animate={{ 
+              clipPath: `circle(150vw at ${authTransition.x}px ${authTransition.y}px)` 
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[150] pointer-events-none"
+          />
+        )}
+      </AnimatePresence>
+
       {splashPhase !== 'done' && (
         <SplashScreen 
           onExpand={() => setSplashPhase('expand')}
@@ -81,7 +100,19 @@ export default function App() {
         key={splashPhase} 
         className={`min-h-screen flex flex-col font-sans selection:bg-primary/30 ${splashPhase === 'intro' ? 'opacity-0 pointer-events-none fixed inset-0' : 'opacity-100'}`}
       >
-        {!isAuthView && <Header currentView={currentView} onViewChange={setCurrentView} />}
+        {!isAuthView && (
+          <Header 
+            currentView={currentView} 
+            onViewChange={setCurrentView} 
+            onAuthTransition={(mode, x, y) => {
+              setAuthTransition({ mode, x, y });
+              setTimeout(() => {
+                setCurrentView(mode);
+                setAuthTransition(null);
+              }, 600);
+            }}
+          />
+        )}
         <main className={!isAuthView ? "flex-1 pt-16" : "flex-1"}>
           {renderView()}
         </main>
