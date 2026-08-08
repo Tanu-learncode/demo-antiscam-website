@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ViewType } from './types';
 import { Footer } from './components/layout/Footer';
 import { Header } from './components/layout/Header';
@@ -26,6 +26,11 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [splashPhase, setSplashPhase] = useState<'intro' | 'expand' | 'done'>('intro');
+
+  // Scroll to top when view changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [currentView, selectedPostId]);
 
   const handleViewChange = (view: ViewType, postId?: string) => {
     setCurrentView(view);
