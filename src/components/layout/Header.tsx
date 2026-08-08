@@ -82,11 +82,42 @@ export function Header({ currentView, onViewChange, onAuthTransition }: HeaderPr
     >
       <div className="flex justify-between items-center h-16 px-6 max-w-7xl mx-auto">
         <div 
-          className="flex items-center gap-2 cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer group"
           onClick={() => handleNavClick('home')}
         >
-          <Shield className="text-primary h-6 w-6" />
-          <span className="font-logo text-xl text-primary font-bold tracking-wider">ANTISCAM</span>
+          <Shield className="text-primary h-6 w-6 transition-transform group-hover:scale-110 duration-300" />
+          <div className="font-logo text-xl text-primary font-bold tracking-wider flex">
+            {"ANTISCAM".split('').map((char, i) => (
+              <motion.span
+                key={i}
+                initial="rest"
+                whileHover="hover"
+                animate="rest"
+                variants={{
+                  rest: { 
+                    y: 0, 
+                    scale: 1, 
+                    textShadow: "0px 0px 0px rgba(125,168,255,0)",
+                    transition: { type: "spring", stiffness: 400, damping: 25 }
+                  },
+                  hover: { 
+                    y: -6, 
+                    scale: 1.15, 
+                    color: "#fff",
+                    textShadow: "0px 8px 16px rgba(125,168,255,0.6)",
+                    transition: {
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 15
+                    }
+                  }
+                }}
+                className="inline-block px-[1px] md:px-[2px] transition-colors"
+              >
+                {char}
+              </motion.span>
+            ))}
+          </div>
         </div>
         
         <div className="hidden md:flex items-center gap-8">
