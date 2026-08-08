@@ -184,7 +184,7 @@ export function SplashScreen({ onExpand, onComplete }: SplashScreenProps) {
                 transition={{ duration: 1, delay: 2.2, ease: 'easeOut' }}
                 className="text-on-surface-variant text-sm md:text-base font-medium tracking-wide"
               >
-                Your shield against online scams.
+                Bảo vệ bạn trước lừa đảo trực tuyến
               </motion.p>
             </motion.div>
           )}

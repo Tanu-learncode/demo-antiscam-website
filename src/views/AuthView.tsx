@@ -96,7 +96,7 @@ export function AuthView({ mode, onModeChange }: AuthViewProps) {
   };
 
   return (
-    <section className="px-4 py-12 md:py-24 min-h-[calc(100vh-4rem)] flex items-center justify-center bg-[#0B1020] overflow-hidden relative font-sans">
+    <section className="px-4 h-[100dvh] w-full flex items-center justify-center bg-[#0B1020] overflow-hidden relative font-sans fixed inset-0 z-50">
       
       {/* Background Cyber/AI Effects */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#5B8CFF]/10 rounded-full blur-[150px] pointer-events-none"></div>

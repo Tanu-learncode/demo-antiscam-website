@@ -67,6 +67,8 @@ export default function App() {
     }
   };
 
+  const isAuthView = currentView === 'login' || currentView === 'register';
+
   return (
     <>
       {splashPhase !== 'done' && (
@@ -79,11 +81,11 @@ export default function App() {
         key={splashPhase} 
         className={`min-h-screen flex flex-col font-sans selection:bg-primary/30 ${splashPhase === 'intro' ? 'opacity-0 pointer-events-none fixed inset-0' : 'opacity-100'}`}
       >
-        <Header currentView={currentView} onViewChange={setCurrentView} />
-        <main className="flex-1 pt-16">{/* Reserve nav height */}
+        {!isAuthView && <Header currentView={currentView} onViewChange={setCurrentView} />}
+        <main className={!isAuthView ? "flex-1 pt-16" : "flex-1"}>
           {renderView()}
         </main>
-        <Footer />
+        {!isAuthView && <Footer />}
       </div>
     </>
   );
